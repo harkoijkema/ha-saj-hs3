@@ -30,9 +30,7 @@ device is active in this alpha.
 
 ## Installation through HACS
 
-HACS currently requires a public GitHub repository. The steps below become
-available after this repository is deliberately made public; changing its
-visibility is not part of this alpha build.
+This public repository can be added to HACS as a custom integration repository.
 
 1. Open HACS.
 2. Open **Custom repositories**.
@@ -42,10 +40,6 @@ visibility is not part of this alpha build.
 6. Restart Home Assistant.
 7. Go to **Settings → Devices & services → Add integration**.
 8. Select **SAJ HS3 / Elekeeper**.
-
-While the repository remains private, copy only
-`custom_components/saj_hs3/` to Home Assistant's `custom_components/`
-directory and restart Home Assistant for a manual test.
 
 The domain changed from the earlier, non-configurable skeleton
 `saj_elekeeper` to `saj_hs3`. Remove a manually copied old skeleton directory
@@ -68,8 +62,8 @@ not tested yet and this is stated in the UI.
 - The production Open Platform client is not yet connected to the integration.
 - No device control or write operation is planned for this read-only phase.
 
-Technical evidence and explicit unknowns are documented in [`docs/`](docs/).
-Private captures, credentials, tokens and local fixtures must never be committed.
+Technical research, captures, credentials and source/register mappings remain
+in a separate private research repository and must never be committed here.
 
 ## Development checks
 
