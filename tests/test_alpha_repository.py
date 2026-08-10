@@ -57,7 +57,7 @@ def test_diagnostics_never_return_secret_values() -> None:
     assert '"entry_data"' not in source
 
 
-def test_alpha_contains_no_saj_transport_calls() -> None:
+def test_integration_contains_no_write_transport_calls() -> None:
     python_source = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted(INTEGRATION.glob("*.py"))
     ).lower()
@@ -66,10 +66,10 @@ def test_alpha_contains_no_saj_transport_calls() -> None:
         "write_registers",
         "transmodbus",
         "at+settingdevice",
-        "client.post(",
-        "client.get(",
-        "session.post(",
-        "session.get(",
+        ".post(",
+        ".put(",
+        ".patch(",
+        ".delete(",
     )
     assert not any(term in python_source for term in forbidden)
 

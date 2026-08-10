@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Choose data sources",
-        "description": "This experimental read-only integration is under development. Local eManager and Elekeeper Open Platform are separate future data sources. No SAJ communication is performed in this alpha version.",
+        "description": "This experimental integration is strictly read-only. Open Platform authentication and one authorized-plant count request are implemented. Local eManager remains an architecture placeholder.",
         "data": {
           "enable_local_emanager": "Local eManager (architecture placeholder)",
           "enable_open_platform": "Elekeeper Open Platform"
@@ -12,7 +12,7 @@
       },
       "open_platform": {
         "title": "Elekeeper Open Platform",
-        "description": "Enter the approved App ID and App Secret. They are stored in the Home Assistant config entry and excluded from diagnostics. Credential verification and API communication are not implemented in this alpha version.",
+        "description": "Enter the App ID and App Secret of a released Elekeeper Open Platform app. Home Assistant verifies the credentials and performs one read-only authorized-plant list request. Secrets and access tokens are excluded from diagnostics.",
         "data": {
           "app_id": "App ID",
           "app_secret": "App Secret"
@@ -22,10 +22,26 @@
         "title": "Local eManager placeholder",
         "description": "The confirmed local architecture uses eManager/BSaj. The exact read-only transport request is not sufficiently confirmed, so this alpha asks for no host, port, unit ID or other connection details. Submit to create a placeholder entry.",
         "data": {}
+      },
+      "reauth_confirm": {
+        "title": "Reconnect Elekeeper Open Platform",
+        "description": "Enter the current App ID and App Secret. The app must be released before Home Assistant can connect.",
+        "data": {
+          "app_id": "App ID",
+          "app_secret": "App Secret"
+        }
       }
     },
     "error": {
-      "source_required": "Select at least one future data source."
+      "source_required": "Select at least one data source.",
+      "invalid_auth": "The App ID or App Secret was rejected.",
+      "app_not_enabled": "The developer app is not released. Release it in the SAJ developer portal and try again.",
+      "cannot_connect": "Unable to connect to the SAJ Elekeeper Open Platform.",
+      "rate_limited": "The SAJ Open Platform rate limit was reached. Try again later.",
+      "unknown": "The SAJ Open Platform returned an unexpected response."
+    },
+    "abort": {
+      "reauth_successful": "Authentication was updated successfully."
     }
   },
   "entity": {

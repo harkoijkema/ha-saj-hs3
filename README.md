@@ -1,8 +1,8 @@
 # SAJ HS3 / Elekeeper for Home Assistant
 
-> **Alpha / experimental.** This repository currently provides an installable,
-> read-only integration shell. It does not yet communicate with SAJ equipment
-> or the Elekeeper Open Platform and therefore creates no sensors.
+> **Alpha / experimental.** This repository provides an installable, strictly
+> read-only integration. It implements official Elekeeper Open Platform token
+> authentication and one authorized-plant count request. It creates no sensors.
 
 `ha-saj-hs3` targets SAJ HS3 installations connected through an
 eManager. It prepares two strictly separated future data sources:
@@ -23,10 +23,12 @@ functionality.
 - selection of Local eManager and/or Elekeeper Open Platform;
 - secure password-style input for an Open Platform App Secret;
 - privacy-safe diagnostics containing only integration status;
+- official App ID/App Secret authentication with in-memory token renewal;
+- one confirmed read-only authorized-plant list request, retaining only its count;
 - an inactive entity-description model without source IDs or register mappings.
 
-No credential test, cloud request, BSaj request, Modbus request, entity or
-device is active in this alpha.
+No BSaj request, Modbus request, control call, sensor or device is active in
+this alpha.
 
 ## Installation through HACS
 
@@ -49,17 +51,18 @@ before installing this alpha.
 
 The first screen describes both future sources. A Local eManager-only entry is
 allowed as an explicit placeholder and requests no unconfirmed host, port or
-unit ID. Open Platform configuration stores only the approved App ID and App
-Secret credential types in the Home Assistant config entry. Connectivity is
-not tested yet and this is stated in the UI.
+unit ID. Open Platform configuration stores the App ID and App Secret in the
+Home Assistant config entry. It obtains an access token and calls only the
+official read-only authorized-plant list endpoint. Access tokens remain in
+memory and the integration discards returned plant identifiers and names.
 
 ## Known limitations
 
-- No actual SAJ communication is implemented.
 - No sensors or Home Assistant devices are created.
 - The local read-only BSaj request/session transport is not yet sufficiently
   confirmed.
-- The production Open Platform client is not yet connected to the integration.
+- The Open Platform developer app must be in Released status.
+- Only authentication and the authorized-plant count are implemented.
 - No device control or write operation is planned for this read-only phase.
 
 Technical research, captures, credentials and source/register mappings remain

@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Kies databronnen",
-        "description": "Deze experimentele read-only integratie is in ontwikkeling. Local eManager en Elekeeper Open Platform zijn afzonderlijke toekomstige databronnen. Deze alphaversie communiceert niet met SAJ.",
+        "description": "Deze experimentele integratie is strikt read-only. Open Platform-authenticatie en één aanvraag voor het aantal geautoriseerde installaties zijn geïmplementeerd. Local eManager blijft een architectuurplaceholder.",
         "data": {
           "enable_local_emanager": "Local eManager (architectuurplaceholder)",
           "enable_open_platform": "Elekeeper Open Platform"
@@ -12,7 +12,7 @@
       },
       "open_platform": {
         "title": "Elekeeper Open Platform",
-        "description": "Voer de goedgekeurde App ID en App Secret in. Home Assistant bewaart ze in de config entry en diagnostics sluit ze uit. Controle van credentials en API-communicatie zijn in deze alphaversie nog niet geïmplementeerd.",
+        "description": "Voer de App ID en App Secret van een vrijgegeven Elekeeper Open Platform-app in. Home Assistant controleert de credentials en vraagt één read-only lijst met geautoriseerde installaties op. Secrets en access tokens worden uitgesloten van diagnostics.",
         "data": {
           "app_id": "App ID",
           "app_secret": "App Secret"
@@ -22,10 +22,26 @@
         "title": "Local eManager-placeholder",
         "description": "De bevestigde lokale architectuur gebruikt eManager/BSaj. De exacte read-only transportrequest is nog onvoldoende bevestigd. Deze alpha vraagt daarom niet om host, poort, unit-ID of andere verbindingsgegevens. Bevestig om een placeholder-entry te maken.",
         "data": {}
+      },
+      "reauth_confirm": {
+        "title": "Elekeeper Open Platform opnieuw verbinden",
+        "description": "Voer de actuele App ID en App Secret in. De app moet zijn vrijgegeven voordat Home Assistant verbinding kan maken.",
+        "data": {
+          "app_id": "App ID",
+          "app_secret": "App Secret"
+        }
       }
     },
     "error": {
-      "source_required": "Selecteer minimaal één toekomstige databron."
+      "source_required": "Selecteer minimaal één databron.",
+      "invalid_auth": "De App ID of App Secret is geweigerd.",
+      "app_not_enabled": "De developer-app is niet vrijgegeven. Geef hem vrij in het SAJ-developerportaal en probeer opnieuw.",
+      "cannot_connect": "Kan geen verbinding maken met het SAJ Elekeeper Open Platform.",
+      "rate_limited": "De limiet van het SAJ Open Platform is bereikt. Probeer het later opnieuw.",
+      "unknown": "Het SAJ Open Platform gaf een onverwacht antwoord."
+    },
+    "abort": {
+      "reauth_successful": "De authenticatie is bijgewerkt."
     }
   },
   "entity": {
