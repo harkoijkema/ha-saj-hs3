@@ -1,0 +1,42 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*token*
+*secret*
+*credentials*
+
+# Test data and recordings
+tests/fixtures/*
+!tests/fixtures/.gitkeep
+test_data/
+test-data/
+recordings/
+cassettes/
+diagnostics/private/*
+!diagnostics/private/elekeeper-access-inventory.example.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+.venv*/
+venv/
+
+# Build and packaging
+build/
+dist/
+*.egg-info/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/

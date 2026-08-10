@@ -1,0 +1,41 @@
+{
+  "title": "SAJ HS3 / Elekeeper",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Kies databronnen",
+        "description": "Deze experimentele read-only integratie is in ontwikkeling. Local eManager en Elekeeper Open Platform zijn afzonderlijke toekomstige databronnen. Deze alphaversie communiceert niet met SAJ.",
+        "data": {
+          "enable_local_emanager": "Local eManager (architectuurplaceholder)",
+          "enable_open_platform": "Elekeeper Open Platform"
+        }
+      },
+      "open_platform": {
+        "title": "Elekeeper Open Platform",
+        "description": "Voer de goedgekeurde App ID en App Secret in. Home Assistant bewaart ze in de config entry en diagnostics sluit ze uit. Controle van credentials en API-communicatie zijn in deze alphaversie nog niet geïmplementeerd.",
+        "data": {
+          "app_id": "App ID",
+          "app_secret": "App Secret"
+        }
+      },
+      "local_emanager": {
+        "title": "Local eManager-placeholder",
+        "description": "De bevestigde lokale architectuur gebruikt eManager/BSaj. De exacte read-only transportrequest is nog onvoldoende bevestigd. Deze alpha vraagt daarom niet om host, poort, unit-ID of andere verbindingsgegevens. Bevestig om een placeholder-entry te maken.",
+        "data": {}
+      }
+    },
+    "error": {
+      "source_required": "Selecteer minimaal één toekomstige databron."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "battery_state_of_charge": {"name": "Laadniveau batterij"},
+      "battery_power_magnitude": {"name": "Batterijvermogen (absolute waarde)"},
+      "pv_power": {"name": "PV-vermogen"},
+      "house_load_power": {"name": "Woningverbruik"},
+      "grid_power_magnitude": {"name": "Netvermogen (absolute waarde)"},
+      "pv_energy_total": {"name": "Totale PV-energie"}
+    }
+  }
+}
