@@ -1,57 +1,142 @@
 {
-  "title": "SAJ HS3 / Elekeeper",
-  "config": {
-    "step": {
-      "user": {
-        "title": "Choose data sources",
-        "description": "This experimental integration is strictly read-only. Open Platform authentication and one authorized-plant count request are implemented. Local eManager remains an architecture placeholder.",
-        "data": {
-          "enable_local_emanager": "Local eManager (architecture placeholder)",
-          "enable_open_platform": "Elekeeper Open Platform"
+    "title": "SAJ HS3 / Elekeeper",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Choose data sources",
+                "description": "This experimental integration is strictly read-only. Local eManager is the primary source; Elekeeper Open Platform remains optional.",
+                "data": {
+                    "enable_local_emanager": "Local eManager (recommended)",
+                    "enable_open_platform": "Elekeeper Open Platform"
+                }
+            },
+            "open_platform": {
+                "title": "Elekeeper Open Platform",
+                "description": "Enter the App ID and App Secret of a released app. Credentials are verified using the confirmed read-only plant-list call.",
+                "data": {
+                    "app_id": "App ID",
+                    "app_secret": "App Secret"
+                }
+            },
+            "local_emanager": {
+                "title": "Select eManager",
+                "description": "Select a connectable eManager discovered by Home Assistant Bluetooth. No Android phone or SAJ cloud account is required.",
+                "data": {
+                    "bluetooth_address": "eManager"
+                }
+            },
+            "bluetooth_confirm": {
+                "title": "Add discovered eManager",
+                "description": "Add {name} using the strictly read-only local BSaj transport.",
+                "data": {}
+            },
+            "reauth_confirm": {
+                "title": "Reconnect Elekeeper Open Platform",
+                "description": "Enter the current App ID and App Secret.",
+                "data": {
+                    "app_id": "App ID",
+                    "app_secret": "App Secret"
+                }
+            }
+        },
+        "error": {
+            "source_required": "Select at least one data source.",
+            "invalid_auth": "The App ID or App Secret was rejected.",
+            "app_not_enabled": "The developer app is not released.",
+            "cannot_connect": "Unable to connect to the SAJ Open Platform.",
+            "rate_limited": "The SAJ Open Platform rate limit was reached.",
+            "unknown": "SAJ returned an unexpected response.",
+            "no_devices_found": "No connectable eManager was discovered. Check Bluetooth range and active proxy support.",
+            "device_unavailable": "The selected eManager is no longer available. Scan again."
+        },
+        "abort": {
+            "not_emanager": "The discovered device is not a supported eManager.",
+            "reauth_successful": "Authentication was updated successfully."
         }
-      },
-      "open_platform": {
-        "title": "Elekeeper Open Platform",
-        "description": "Enter the App ID and App Secret of a released Elekeeper Open Platform app. Home Assistant verifies the credentials and performs one read-only authorized-plant list request. Secrets and access tokens are excluded from diagnostics.",
-        "data": {
-          "app_id": "App ID",
-          "app_secret": "App Secret"
-        }
-      },
-      "local_emanager": {
-        "title": "Local eManager placeholder",
-        "description": "The confirmed local architecture uses eManager/BSaj. The exact read-only transport request is not sufficiently confirmed, so this alpha asks for no host, port, unit ID or other connection details. Submit to create a placeholder entry.",
-        "data": {}
-      },
-      "reauth_confirm": {
-        "title": "Reconnect Elekeeper Open Platform",
-        "description": "Enter the current App ID and App Secret. The app must be released before Home Assistant can connect.",
-        "data": {
-          "app_id": "App ID",
-          "app_secret": "App Secret"
-        }
-      }
     },
-    "error": {
-      "source_required": "Select at least one data source.",
-      "invalid_auth": "The App ID or App Secret was rejected.",
-      "app_not_enabled": "The developer app is not released. Release it in the SAJ developer portal and try again.",
-      "cannot_connect": "Unable to connect to the SAJ Elekeeper Open Platform.",
-      "rate_limited": "The SAJ Open Platform rate limit was reached. Try again later.",
-      "unknown": "The SAJ Open Platform returned an unexpected response."
-    },
-    "abort": {
-      "reauth_successful": "Authentication was updated successfully."
+    "entity": {
+        "sensor": {
+            "battery_state_of_charge": {
+                "name": "Battery state of charge"
+            },
+            "battery_power": {
+                "name": "Battery power"
+            },
+            "pv_power": {
+                "name": "PV power"
+            },
+            "house_load_power": {
+                "name": "House load power"
+            },
+            "grid_power": {
+                "name": "Grid power"
+            },
+            "pv_energy_total": {
+                "name": "PV energy total"
+            },
+            "battery_charge_energy_total": {
+                "name": "Battery charge energy total"
+            },
+            "battery_discharge_energy_total": {
+                "name": "Battery discharge energy total"
+            },
+            "grid_import_energy_total": {
+                "name": "Grid import energy total"
+            },
+            "grid_export_energy_total": {
+                "name": "Grid export energy total"
+            },
+            "load_energy_total": {
+                "name": "Load energy total"
+            },
+            "ems_operating_strategy": {
+                "name": "EMS operating strategy"
+            },
+            "battery_installed_capacity": {
+                "name": "Battery installed capacity"
+            },
+            "battery_current": {
+                "name": "Battery current"
+            },
+            "battery_voltage": {
+                "name": "Battery voltage"
+            },
+            "pv_direction_code": {
+                "name": "PV direction code"
+            },
+            "battery_direction_code": {
+                "name": "Battery direction code"
+            },
+            "grid_direction_code": {
+                "name": "Grid direction code"
+            },
+            "load_direction_code": {
+                "name": "Load direction code"
+            },
+            "inverter_type": {"name": "Inverter type"},
+            "inverter_rated_power": {"name": "Inverter rated power"},
+            "inverter_protocol_version": {"name": "Inverter protocol version"},
+            "pv1_voltage": {"name": "PV1 voltage"},
+            "pv1_current": {"name": "PV1 current"},
+            "pv1_power": {"name": "PV1 power"},
+            "pv2_voltage": {"name": "PV2 voltage"},
+            "pv2_current": {"name": "PV2 current"},
+            "pv2_power": {"name": "PV2 power"},
+            "backup_voltage_l1": {"name": "Backup voltage L1"},
+            "backup_voltage_l2": {"name": "Backup voltage L2"},
+            "backup_voltage_l3": {"name": "Backup voltage L3"},
+            "backup_current_l1": {"name": "Backup current L1"},
+            "backup_current_l2": {"name": "Backup current L2"},
+            "backup_current_l3": {"name": "Backup current L3"},
+            "backup_power_l1": {"name": "Backup power L1"},
+            "backup_power_l2": {"name": "Backup power L2"},
+            "backup_power_l3": {"name": "Backup power L3"},
+            "backup_frequency": {"name": "Backup frequency"},
+            "battery_status_code": {"name": "Battery status code"},
+            "battery_charge_voltage": {"name": "Battery charge voltage"},
+            "battery_voltage_alarm": {"name": "Battery voltage alarm threshold"},
+            "battery_charge_current_limit": {"name": "Battery charge current limit"},
+            "battery_discharge_current_limit": {"name": "Battery discharge current limit"}
+        }
     }
-  },
-  "entity": {
-    "sensor": {
-      "battery_state_of_charge": {"name": "Battery state of charge"},
-      "battery_power_magnitude": {"name": "Battery power magnitude"},
-      "pv_power": {"name": "PV power"},
-      "house_load_power": {"name": "House load power"},
-      "grid_power_magnitude": {"name": "Grid power magnitude"},
-      "pv_energy_total": {"name": "PV energy total"}
-    }
-  }
 }

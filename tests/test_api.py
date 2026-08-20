@@ -100,7 +100,7 @@ def test_successful_authentication_and_read_only_plant_count() -> None:
 
     assert asyncio.run(client.async_get_authorized_plant_count()) == 1
     assert client.is_authenticated
-    assert client.token_lifetime == 28800
+    assert client.token_expires_in == 28800
     assert len(session.calls) == 2
     assert session.calls[0]["params"] == {
         "appId": APP_ID,

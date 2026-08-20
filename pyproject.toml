@@ -8,6 +8,10 @@ line-length = 88
 extend-exclude = [
   "docs/reference-ha-esolar",
   "docs/reference-ha-saj-h2-modbus",
+  # Legacy standalone research utilities have their own Python compatibility
+  # constraints and are not part of the Home Assistant integration candidate.
+  "tools/build_hs3_datasource_matrix.py",
+  "tools/hs3_modbus_diagnostics.py",
 ]
 
 [tool.ruff.lint]

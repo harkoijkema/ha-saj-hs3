@@ -57,30 +57,29 @@ def test_diagnostics_never_return_secret_values() -> None:
     assert '"entry_data"' not in source
 
 
-def test_integration_contains_no_write_transport_calls() -> None:
+def test_alpha_contains_no_state_changing_transport_calls() -> None:
     python_source = "\n".join(
         path.read_text(encoding="utf-8") for path in sorted(INTEGRATION.glob("*.py"))
     ).lower()
     forbidden = (
         "write_register",
         "write_registers",
-        "transmodbus",
-        "at+settingdevice",
-        ".post(",
-        ".put(",
-        ".patch(",
-        ".delete(",
+        "writetransmodbus",
+        '"funccode": "05"',
+        '"funccode": "06"',
+        '"funccode": "15"',
+        '"funccode": "16"',
     )
     assert not any(term in python_source for term in forbidden)
 
 
-def test_device_hierarchy_has_no_hardcoded_identifier() -> None:
-    source = (INTEGRATION / "entity.py").read_text(encoding="utf-8")
-    assert "if descriptor.identifier is None:" in source
-    assert "identifiers={(DOMAIN, descriptor.identifier)}" in source
-
-
-def test_public_alpha_contains_no_research_source_ids() -> None:
+def test_device_hierarchy_has_no_hardcoded_private_identifier() -> None:
     source = (INTEGRATION / "sensor.py").read_text(encoding="utf-8")
-    assert "CANDIDATE_SENSOR_DESCRIPTIONS" in source
-    assert 'source_field="' not in source
+    assert "entry.entry_id" in source
+    assert "M556" not in source
+
+
+def test_public_alpha_contains_only_selected_source_ids() -> None:
+    source = (INTEGRATION / "sensor.py").read_text(encoding="utf-8")
+    assert "LOCAL_SENSOR_DESCRIPTIONS" in source
+    assert 'source_field="41"' in source

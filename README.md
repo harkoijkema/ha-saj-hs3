@@ -1,38 +1,41 @@
 # SAJ HS3 / Elekeeper for Home Assistant
 
-> **Alpha / experimental.** This repository provides an installable, strictly
-> read-only integration. It implements official Elekeeper Open Platform token
-> authentication and one authorized-plant count request. It creates no sensors.
-
-`ha-saj-hs3` targets SAJ HS3 installations connected through an
-eManager. It prepares two strictly separated future data sources:
-
-- **Local eManager** via the still-to-be-confirmed read-only eManager/BSaj
-  transport;
-- **Elekeeper Open Platform** via official App ID/App Secret token
-  authentication.
-
-The integration does not use an Elekeeper username/password. It does not use
-ordinary Modbus TCP as the HS3 local client and contains no write or control
-functionality.
+> **Alpha / experimental.** This is a strictly read-only custom integration for
+> SAJ HS3 installations with an eManager. It exposes only data points supported
+> by documented definitions and validation against the developer's own system.
 
 ## Current capabilities
 
-- installation as a HACS custom repository;
-- configuration through the Home Assistant UI;
-- selection of Local eManager and/or Elekeeper Open Platform;
-- secure password-style input for an Open Platform App Secret;
-- privacy-safe diagnostics containing only integration status;
-- official App ID/App Secret authentication with in-memory token renewal;
-- one confirmed read-only authorized-plant list request, retaining only its count;
-- an inactive entity-description model without source IDs or register mappings.
+- local polling through Home Assistant Bluetooth or an ESPHome Bluetooth Proxy;
+- a persistent, read-only BLE/GATT and BSaj session with the eManager;
+- confirmed EMS data and a small set of confirmed `transModbus` reads;
+- 22 power, energy, battery and diagnostic entities;
+- configuration and Bluetooth discovery through the Home Assistant UI;
+- optional official Elekeeper Open Platform authentication as a secondary source;
+- privacy-safe Home Assistant diagnostics;
+- automatic recovery from temporary Bluetooth availability problems.
 
-No BSaj request, Modbus request, control call, sensor or device is active in
-this alpha.
+The local route is:
+
+`Home Assistant → Bluetooth/ESPHome proxy → eManager → BSaj → HS3`
+
+The integration contains no controls and does not write inverter, battery,
+grid or EV-charger settings. Ordinary Modbus TCP on port 502 is not used for
+the HS3 data implemented here.
+
+## Requirements
+
+- Home Assistant 2025.1 or newer;
+- a SAJ HS3 installation with eManager;
+- Bluetooth coverage from Home Assistant or an ESPHome Bluetooth Proxy;
+- the eManager must be advertising and connectable.
+
+An Android phone and the Elekeeper app are not required for normal local
+operation. Results can vary with firmware and installation topology; report
+unsupported systems through GitHub Issues without including serial numbers,
+addresses, credentials or raw captures.
 
 ## Installation through HACS
-
-This public repository can be added to HACS as a custom integration repository.
 
 1. Open HACS.
 2. Open **Custom repositories**.
@@ -42,31 +45,34 @@ This public repository can be added to HACS as a custom integration repository.
 6. Restart Home Assistant.
 7. Go to **Settings → Devices & services → Add integration**.
 8. Select **SAJ HS3 / Elekeeper**.
+9. Choose **Local eManager** and select the discovered eManager.
 
-The domain changed from the earlier, non-configurable skeleton
-`saj_elekeeper` to `saj_hs3`. Remove a manually copied old skeleton directory
-before installing this alpha.
+The domain is `saj_hs3`. Remove an obsolete manually copied
+`custom_components/saj_elekeeper` directory before installation.
 
-## Configuration
+## Elekeeper Open Platform
 
-The first screen describes both future sources. A Local eManager-only entry is
-allowed as an explicit placeholder and requests no unconfirmed host, port or
-unit ID. Open Platform configuration stores the App ID and App Secret in the
-Home Assistant config entry. It obtains an access token and calls only the
-official read-only authorized-plant list endpoint. Access tokens remain in
-memory and the integration discards returned plant identifiers and names.
+Open Platform remains an optional, secondary data source. It uses an official
+released App ID/App Secret, stores the secret in the Home Assistant config
+entry, keeps access tokens only in memory and currently performs only confirmed
+read-only authentication/resource checks. A normal Elekeeper username and
+password are never requested.
 
 ## Known limitations
 
-- No sensors or Home Assistant devices are created.
-- The local read-only BSaj request/session transport is not yet sufficiently
-  confirmed.
-- The Open Platform developer app must be in Released status.
-- Only authentication and the authorized-plant count are implemented.
-- No device control or write operation is planned for this read-only phase.
+- This release supports only the currently confirmed local fields.
+- Individual battery modules, phase-level grid values and EV-charger data are
+  not exposed unless their read-only meaning and transport are confirmed.
+- Bluetooth advertisements can temporarily disappear; the integration cannot
+  connect until Home Assistant sees the eManager again.
+- Alpha releases can change entity availability and configuration behavior.
+- No write or control functionality is included.
 
-Technical research, captures, credentials and source/register mappings remain
-in a separate private research repository and must never be committed here.
+## Branding
+
+The bundled `SAJ HS3` project icon is an original, unofficial integration
+graphic. It is not an official SAJ logo and does not imply endorsement by SAJ.
+SAJ, Elekeeper and related product names belong to their respective owner.
 
 ## Development checks
 
@@ -77,5 +83,6 @@ ruff format --check .
 mypy custom_components/saj_hs3
 ```
 
-GitHub workflows additionally run HACS validation and hassfest. No GitHub
-release is created by this project setup.
+GitHub Actions additionally run HACS validation and hassfest. Private research,
+captures, credentials, device identifiers and unpublished register material are
+not part of this public repository.

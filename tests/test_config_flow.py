@@ -41,7 +41,7 @@ async def _set_unique_id(self: SAJHS3ConfigFlow, unique_id: str) -> None:
 def test_config_flow_success() -> None:
     flow = SAJHS3ConfigFlow()
     flow._selected_sources = [SOURCE_OPEN_PLATFORM]
-    flow._async_validate_open_platform = MethodType(_validation_success, flow)  # type: ignore[method-assign]
+    flow._validate_cloud = MethodType(_validation_success, flow)  # type: ignore[method-assign]
     flow.async_set_unique_id = MethodType(_set_unique_id, flow)  # type: ignore[method-assign]
     flow._abort_if_unique_id_configured = lambda: None  # type: ignore[method-assign]
 
@@ -59,7 +59,7 @@ def test_config_flow_success() -> None:
 def test_config_flow_auth_failure() -> None:
     flow = SAJHS3ConfigFlow()
     flow._selected_sources = [SOURCE_OPEN_PLATFORM]
-    flow._async_validate_open_platform = MethodType(_validation_failure, flow)  # type: ignore[method-assign]
+    flow._validate_cloud = MethodType(_validation_failure, flow)  # type: ignore[method-assign]
 
     result = asyncio.run(
         flow.async_step_open_platform(
@@ -90,8 +90,9 @@ class FakeConfigEntries:
 
 def test_setup_and_unload_config_entry(monkeypatch: Any) -> None:
     class FakeCoordinator:
-        def __init__(self, hass: Any, entry: Any, api: Any) -> None:
+        def __init__(self, hass: Any, entry: Any, api: Any, local: Any) -> None:
             del hass, entry, api
+            self.local = local
             self.refreshed = False
 
         async def async_config_entry_first_refresh(self) -> None:

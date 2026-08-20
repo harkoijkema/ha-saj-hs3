@@ -1,12 +1,19 @@
 {
   "domain": "saj_hs3",
   "name": "SAJ HS3 / Elekeeper",
+  "bluetooth": [
+    {
+      "connectable": true,
+      "local_name": "eManager:*"
+    }
+  ],
   "codeowners": ["@harkoijkema"],
   "config_flow": true,
+  "dependencies": ["bluetooth_adapters"],
   "documentation": "https://github.com/harkoijkema/ha-saj-hs3",
   "integration_type": "hub",
-  "iot_class": "cloud_polling",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/harkoijkema/ha-saj-hs3/issues",
-  "requirements": [],
-  "version": "0.2.0-alpha.1"
+  "requirements": ["bleak-retry-connector>=3.12.0"],
+  "version": "0.6.0-alpha.1"
 }

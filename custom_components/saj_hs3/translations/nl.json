@@ -1,57 +1,142 @@
 {
-  "title": "SAJ HS3 / Elekeeper",
-  "config": {
-    "step": {
-      "user": {
-        "title": "Kies databronnen",
-        "description": "Deze experimentele integratie is strikt read-only. Open Platform-authenticatie en één aanvraag voor het aantal geautoriseerde installaties zijn geïmplementeerd. Local eManager blijft een architectuurplaceholder.",
-        "data": {
-          "enable_local_emanager": "Local eManager (architectuurplaceholder)",
-          "enable_open_platform": "Elekeeper Open Platform"
+    "title": "SAJ HS3 / Elekeeper",
+    "config": {
+        "step": {
+            "user": {
+                "title": "Gegevensbronnen kiezen",
+                "description": "Deze experimentele integratie is strikt alleen-lezen. Lokale eManager is de primaire bron; Elekeeper Open Platform blijft optioneel.",
+                "data": {
+                    "enable_local_emanager": "Lokale eManager (aanbevolen)",
+                    "enable_open_platform": "Elekeeper Open Platform"
+                }
+            },
+            "open_platform": {
+                "title": "Elekeeper Open Platform",
+                "description": "Voer de App ID en App Secret van een vrijgegeven app in. De gegevens worden gecontroleerd met de bevestigde alleen-lezen installatielijst.",
+                "data": {
+                    "app_id": "App ID",
+                    "app_secret": "App Secret"
+                }
+            },
+            "local_emanager": {
+                "title": "eManager selecteren",
+                "description": "Selecteer een verbindbare eManager die Home Assistant via Bluetooth heeft ontdekt. Een Android-telefoon of SAJ-cloudaccount is niet nodig.",
+                "data": {
+                    "bluetooth_address": "eManager"
+                }
+            },
+            "bluetooth_confirm": {
+                "title": "Ontdekte eManager toevoegen",
+                "description": "Voeg {name} toe via het strikt alleen-lezen lokale BSaj-transport.",
+                "data": {}
+            },
+            "reauth_confirm": {
+                "title": "Opnieuw verbinden met Elekeeper Open Platform",
+                "description": "Voer de huidige App ID en App Secret in.",
+                "data": {
+                    "app_id": "App ID",
+                    "app_secret": "App Secret"
+                }
+            }
+        },
+        "error": {
+            "source_required": "Selecteer ten minste \u00e9\u00e9n gegevensbron.",
+            "invalid_auth": "De App ID of App Secret is geweigerd.",
+            "app_not_enabled": "De developer-app is niet vrijgegeven.",
+            "cannot_connect": "Kan geen verbinding maken met SAJ Open Platform.",
+            "rate_limited": "De snelheidslimiet van SAJ Open Platform is bereikt.",
+            "unknown": "SAJ gaf een onverwacht antwoord.",
+            "no_devices_found": "Er is geen verbindbare eManager gevonden. Controleer Bluetooth-bereik en actieve proxyondersteuning.",
+            "device_unavailable": "De geselecteerde eManager is niet meer beschikbaar. Scan opnieuw."
+        },
+        "abort": {
+            "not_emanager": "Het ontdekte apparaat is geen ondersteunde eManager.",
+            "reauth_successful": "De authenticatie is bijgewerkt."
         }
-      },
-      "open_platform": {
-        "title": "Elekeeper Open Platform",
-        "description": "Voer de App ID en App Secret van een vrijgegeven Elekeeper Open Platform-app in. Home Assistant controleert de credentials en vraagt één read-only lijst met geautoriseerde installaties op. Secrets en access tokens worden uitgesloten van diagnostics.",
-        "data": {
-          "app_id": "App ID",
-          "app_secret": "App Secret"
-        }
-      },
-      "local_emanager": {
-        "title": "Local eManager-placeholder",
-        "description": "De bevestigde lokale architectuur gebruikt eManager/BSaj. De exacte read-only transportrequest is nog onvoldoende bevestigd. Deze alpha vraagt daarom niet om host, poort, unit-ID of andere verbindingsgegevens. Bevestig om een placeholder-entry te maken.",
-        "data": {}
-      },
-      "reauth_confirm": {
-        "title": "Elekeeper Open Platform opnieuw verbinden",
-        "description": "Voer de actuele App ID en App Secret in. De app moet zijn vrijgegeven voordat Home Assistant verbinding kan maken.",
-        "data": {
-          "app_id": "App ID",
-          "app_secret": "App Secret"
-        }
-      }
     },
-    "error": {
-      "source_required": "Selecteer minimaal één databron.",
-      "invalid_auth": "De App ID of App Secret is geweigerd.",
-      "app_not_enabled": "De developer-app is niet vrijgegeven. Geef hem vrij in het SAJ-developerportaal en probeer opnieuw.",
-      "cannot_connect": "Kan geen verbinding maken met het SAJ Elekeeper Open Platform.",
-      "rate_limited": "De limiet van het SAJ Open Platform is bereikt. Probeer het later opnieuw.",
-      "unknown": "Het SAJ Open Platform gaf een onverwacht antwoord."
-    },
-    "abort": {
-      "reauth_successful": "De authenticatie is bijgewerkt."
+    "entity": {
+        "sensor": {
+            "battery_state_of_charge": {
+                "name": "Laadniveau batterij"
+            },
+            "battery_power": {
+                "name": "Batterijvermogen"
+            },
+            "pv_power": {
+                "name": "PV-vermogen"
+            },
+            "house_load_power": {
+                "name": "Woningverbruik"
+            },
+            "grid_power": {
+                "name": "Netvermogen"
+            },
+            "pv_energy_total": {
+                "name": "Totale PV-energie"
+            },
+            "battery_charge_energy_total": {
+                "name": "Totale geladen batterij-energie"
+            },
+            "battery_discharge_energy_total": {
+                "name": "Totale ontladen batterij-energie"
+            },
+            "grid_import_energy_total": {
+                "name": "Totale netafname"
+            },
+            "grid_export_energy_total": {
+                "name": "Totale teruglevering"
+            },
+            "load_energy_total": {
+                "name": "Totaal verbruik"
+            },
+            "ems_operating_strategy": {
+                "name": "EMS-bedrijfsstrategie"
+            },
+            "battery_installed_capacity": {
+                "name": "Ge\u00efnstalleerde batterijcapaciteit"
+            },
+            "battery_current": {
+                "name": "Batterijstroom"
+            },
+            "battery_voltage": {
+                "name": "Batterijspanning"
+            },
+            "pv_direction_code": {
+                "name": "PV-richtingscode"
+            },
+            "battery_direction_code": {
+                "name": "Batterijrichtingscode"
+            },
+            "grid_direction_code": {
+                "name": "Netrichtingscode"
+            },
+            "load_direction_code": {
+                "name": "Belastingsrichtingscode"
+            },
+            "inverter_type": {"name": "Omvormertype"},
+            "inverter_rated_power": {"name": "Nominaal omvormervermogen"},
+            "inverter_protocol_version": {"name": "Omvormerprotocolversie"},
+            "pv1_voltage": {"name": "PV1-spanning"},
+            "pv1_current": {"name": "PV1-stroom"},
+            "pv1_power": {"name": "PV1-vermogen"},
+            "pv2_voltage": {"name": "PV2-spanning"},
+            "pv2_current": {"name": "PV2-stroom"},
+            "pv2_power": {"name": "PV2-vermogen"},
+            "backup_voltage_l1": {"name": "Back-upspanning L1"},
+            "backup_voltage_l2": {"name": "Back-upspanning L2"},
+            "backup_voltage_l3": {"name": "Back-upspanning L3"},
+            "backup_current_l1": {"name": "Back-upstroom L1"},
+            "backup_current_l2": {"name": "Back-upstroom L2"},
+            "backup_current_l3": {"name": "Back-upstroom L3"},
+            "backup_power_l1": {"name": "Back-upvermogen L1"},
+            "backup_power_l2": {"name": "Back-upvermogen L2"},
+            "backup_power_l3": {"name": "Back-upvermogen L3"},
+            "backup_frequency": {"name": "Back-upfrequentie"},
+            "battery_status_code": {"name": "Batterijstatuscode"},
+            "battery_charge_voltage": {"name": "Batterijlaadspanning"},
+            "battery_voltage_alarm": {"name": "Alarmgrens batterijspanning"},
+            "battery_charge_current_limit": {"name": "Laadstroomlimiet batterij"},
+            "battery_discharge_current_limit": {"name": "Ontlaadstroomlimiet batterij"}
+        }
     }
-  },
-  "entity": {
-    "sensor": {
-      "battery_state_of_charge": {"name": "Laadniveau batterij"},
-      "battery_power_magnitude": {"name": "Batterijvermogen (absolute waarde)"},
-      "pv_power": {"name": "PV-vermogen"},
-      "house_load_power": {"name": "Woningverbruik"},
-      "grid_power_magnitude": {"name": "Netvermogen (absolute waarde)"},
-      "pv_energy_total": {"name": "Totale PV-energie"}
-    }
-  }
 }
