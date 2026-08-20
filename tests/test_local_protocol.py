@@ -173,7 +173,9 @@ def test_confirmed_hs3_pv_and_backup_block_normalization() -> None:
     words[10] = 900
     words[12:14] = [2302, 50]
     words[16] = 800
+    words[24] = 0xFF38
     words[28:34] = [4000, 123, 500, 3990, 120, 480]
+
     assert normalize_transmodbus_fields(("03", "0x4055", 76), words) == {
         "tm_backup_voltage_l1": 230.0,
         "tm_backup_current_l1": 1.0,
@@ -185,12 +187,33 @@ def test_confirmed_hs3_pv_and_backup_block_normalization() -> None:
         "tm_backup_voltage_l3": 230.2,
         "tm_backup_current_l3": 0.5,
         "tm_backup_power_l3": 800,
+        "tm_battery_power_signed": -200,
         "tm_pv1_voltage": 400.0,
         "tm_pv1_current": 1.23,
         "tm_pv1_power": 500,
         "tm_pv2_voltage": 399.0,
         "tm_pv2_current": 1.2,
         "tm_pv2_power": 480,
+    }
+
+
+def test_confirmed_hs3_three_phase_ac_block_normalization() -> None:
+    words = [0] * 19
+    words[0:5] = [2310, 123, 5001, 0, 800]
+    words[7:12] = [2305, 0xFF9C, 5000, 0, 0xFF38]
+    words[14:19] = [2299, 50, 4999, 0, 400]
+
+    assert normalize_transmodbus_fields(("03", "0x4031", 19), words) == {
+        "tm_grid_voltage_l1": 231.0,
+        "tm_grid_current_l1": 1.23,
+        "tm_grid_frequency": 50.01,
+        "tm_grid_power_l1": 800,
+        "tm_grid_voltage_l2": 230.5,
+        "tm_grid_current_l2": -1.0,
+        "tm_grid_power_l2": -200,
+        "tm_grid_voltage_l3": 229.9,
+        "tm_grid_current_l3": 0.5,
+        "tm_grid_power_l3": 400,
     }
 
 
