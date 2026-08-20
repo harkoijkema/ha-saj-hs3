@@ -127,7 +127,6 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
         key="battery_installed_capacity",
         translation_key="battery_installed_capacity",
         device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.MEASUREMENT,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         source=SOURCE_LOCAL_EMANAGER,
         source_field="tm_battery_capacity",
