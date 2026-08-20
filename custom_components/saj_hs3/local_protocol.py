@@ -196,12 +196,16 @@ def parse_charger_info_response(payload: bytes) -> dict[str, int | float]:
     for source_key, target_key in (
         ("status", "ev_charger_status_raw"),
         ("power", "ev_charger_power_raw"),
-        ("totalEnergy", "ev_charger_total_energy_raw"),
     ):
         value = charger.get(source_key)
         if isinstance(value, bool) or not isinstance(value, (int, float)):
             raise SajLocalProtocolError(f"Invalid charger field type for {source_key}")
         result[target_key] = value
+    total_energy = charger.get("totalEnergy")
+    if isinstance(total_energy, bool) or not isinstance(total_energy, (int, float)):
+        raise SajLocalProtocolError("Invalid charger field type for totalEnergy")
+    # Live correlation: raw 298887 is rendered by Elekeeper as 298.887 kWh.
+    result["ev_charger_total_energy_kwh"] = total_energy / 1000
     return result
 
 

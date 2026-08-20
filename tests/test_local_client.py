@@ -315,7 +315,7 @@ def test_client_reads_only_fixed_allowlisted_sources(
     assert fields["ev_charger_available"] is True
     assert fields["ev_charger_status_raw"] == 1
     assert fields["ev_charger_power_raw"] == 0
-    assert fields["ev_charger_total_energy_raw"] == 321
+    assert fields["ev_charger_total_energy_kwh"] == 0.321
     assert client.cycle_diagnostics["result"] == "success"
     assert client.cycle_diagnostics["stage"] == "complete"
     assert client.cycle_diagnostics["request_count"] == 10

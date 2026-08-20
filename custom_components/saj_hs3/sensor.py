@@ -266,10 +266,10 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
         state_class=SensorStateClass.TOTAL,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         source=SOURCE_LOCAL_EMANAGER,
-        source_field="ev_charger_total_energy_raw",
+        source_field="ev_charger_total_energy_kwh",
         availability_field="ev_charger_available",
         device_role="ev_charger",
-        evidence="official_definition+strict_readonly_contract",
+        evidence="official_definition+live_correlated_scale",
     ),
 )
 

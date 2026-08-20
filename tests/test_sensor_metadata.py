@@ -17,6 +17,7 @@ def test_confirmed_sensor_expansion_is_defined() -> None:
             "official_definition+exact_live_read_block",
             "official_definition+model_condition",
             "official_definition+strict_readonly_contract",
+            "official_definition+live_correlated_scale",
         }
         for item in LOCAL_SENSOR_DESCRIPTIONS
     )

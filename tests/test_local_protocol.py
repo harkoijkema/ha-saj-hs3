@@ -142,7 +142,7 @@ def test_charger_query_is_fixed_and_response_is_strict() -> None:
     assert parse_charger_info_response(payload) == {
         "ev_charger_status_raw": 2,
         "ev_charger_power_raw": 3456,
-        "ev_charger_total_energy_raw": 123,
+        "ev_charger_total_energy_kwh": 0.123,
     }
     with pytest.raises(SajLocalProtocolError):
         parse_charger_info_response(
