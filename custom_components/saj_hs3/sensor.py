@@ -91,6 +91,11 @@ def _current(
 LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
     _power("pv_power", "pv_power", "39"),
     _power("battery_power", "battery_power", "40"),
+    _power(
+        "battery_power_signed",
+        "battery_power_signed",
+        "tm_battery_power_signed",
+    ),
     SAJHS3SensorEntityDescription(
         key="battery_soc",
         translation_key="battery_state_of_charge",
@@ -177,6 +182,25 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
     _voltage("pv2_voltage", "pv2_voltage", "tm_pv2_voltage"),
     _current("pv2_current", "pv2_current", "tm_pv2_current"),
     _power("pv2_power", "pv2_power", "tm_pv2_power"),
+    _voltage("grid_voltage_l1", "grid_voltage_l1", "tm_grid_voltage_l1"),
+    _current("grid_current_l1", "grid_current_l1", "tm_grid_current_l1"),
+    _power("grid_power_l1", "grid_power_l1", "tm_grid_power_l1"),
+    _voltage("grid_voltage_l2", "grid_voltage_l2", "tm_grid_voltage_l2"),
+    _current("grid_current_l2", "grid_current_l2", "tm_grid_current_l2"),
+    _power("grid_power_l2", "grid_power_l2", "tm_grid_power_l2"),
+    _voltage("grid_voltage_l3", "grid_voltage_l3", "tm_grid_voltage_l3"),
+    _current("grid_current_l3", "grid_current_l3", "tm_grid_current_l3"),
+    _power("grid_power_l3", "grid_power_l3", "tm_grid_power_l3"),
+    SAJHS3SensorEntityDescription(
+        key="grid_frequency",
+        translation_key="grid_frequency",
+        device_class=SensorDeviceClass.FREQUENCY,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfFrequency.HERTZ,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field="tm_grid_frequency",
+        evidence="official_definition+model_condition",
+    ),
     _voltage("backup_voltage_l1", "backup_voltage_l1", "tm_backup_voltage_l1"),
     _current("backup_current_l1", "backup_current_l1", "tm_backup_current_l1"),
     _power("backup_power_l1", "backup_power_l1", "tm_backup_power_l1"),
@@ -218,19 +242,7 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
 # These keys existed only in one local, unpublished validation build. Its
 # A03C block returned valid but all-zero data for this HS3 target, so the
 # entities must not remain as orphaned registry records.
-_RETIRED_LOCAL_VALIDATION_KEYS = (
-    "grid_voltage_l1",
-    "grid_voltage_l2",
-    "grid_voltage_l3",
-    "grid_current_l1",
-    "grid_current_l2",
-    "grid_current_l3",
-    "grid_power_l1",
-    "grid_power_l2",
-    "grid_power_l3",
-    "grid_frequency",
-    "grid_meter_status",
-)
+_RETIRED_LOCAL_VALIDATION_KEYS = ("grid_meter_status",)
 _WORKING_DIAGNOSTIC_KEYS = (
     "ems_operating_strategy",
     "pv_direction_code",

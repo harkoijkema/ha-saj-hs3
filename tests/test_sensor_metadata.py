@@ -7,7 +7,7 @@ from custom_components.saj_hs3.sensor import LOCAL_SENSOR_DESCRIPTIONS
 
 
 def test_confirmed_sensor_expansion_is_defined() -> None:
-    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 38
+    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 49
     assert all(
         item.evidence
         in {
@@ -15,6 +15,7 @@ def test_confirmed_sensor_expansion_is_defined() -> None:
             "official_definition+exact_live_response",
             "official_definition+live_block_coverage",
             "official_definition+exact_live_read_block",
+            "official_definition+model_condition",
         }
         for item in LOCAL_SENSOR_DESCRIPTIONS
     )
@@ -44,7 +45,7 @@ def test_sensor_keys_and_source_fields_do_not_create_duplicates() -> None:
     source_fields = {
         (item.source, item.source_field) for item in LOCAL_SENSOR_DESCRIPTIONS
     }
-    assert len(source_fields) == 38
+    assert len(source_fields) == 49
 
 
 def test_confirmed_pv_and_backup_block_entities_are_offered() -> None:
@@ -69,23 +70,21 @@ def test_confirmed_pv_and_backup_block_entities_are_offered() -> None:
     }.issubset(keys)
 
 
-def test_no_placeholder_or_retired_grid_entities_are_offered() -> None:
+def test_confirmed_ac_phase_entities_are_offered_without_meter_placeholder() -> None:
     keys = {item.key for item in LOCAL_SENSOR_DESCRIPTIONS}
-    assert not keys.intersection(
-        {
-            "grid_voltage_l1",
-            "grid_voltage_l2",
-            "grid_voltage_l3",
-            "grid_current_l1",
-            "grid_current_l2",
-            "grid_current_l3",
-            "grid_power_l1",
-            "grid_power_l2",
-            "grid_power_l3",
-            "grid_frequency",
-            "grid_meter_status",
-        }
-    )
+    assert {
+        "grid_voltage_l1",
+        "grid_voltage_l2",
+        "grid_voltage_l3",
+        "grid_current_l1",
+        "grid_current_l2",
+        "grid_current_l3",
+        "grid_power_l1",
+        "grid_power_l2",
+        "grid_power_l3",
+        "grid_frequency",
+    }.issubset(keys)
+    assert "grid_meter_status" not in keys
 
 
 def test_energy_totals_are_not_total_increasing_yet() -> None:

@@ -62,6 +62,7 @@
             "battery_power": {
                 "name": "Batterijvermogen"
             },
+            "battery_power_signed": {"name": "Batterijvermogen (met richting)"},
             "pv_power": {
                 "name": "PV-vermogen"
             },
@@ -122,6 +123,16 @@
             "pv2_voltage": {"name": "PV2-spanning"},
             "pv2_current": {"name": "PV2-stroom"},
             "pv2_power": {"name": "PV2-vermogen"},
+            "grid_voltage_l1": {"name": "Netspanning L1"},
+            "grid_current_l1": {"name": "Netstroom L1"},
+            "grid_power_l1": {"name": "Netvermogen L1"},
+            "grid_voltage_l2": {"name": "Netspanning L2"},
+            "grid_current_l2": {"name": "Netstroom L2"},
+            "grid_power_l2": {"name": "Netvermogen L2"},
+            "grid_voltage_l3": {"name": "Netspanning L3"},
+            "grid_current_l3": {"name": "Netstroom L3"},
+            "grid_power_l3": {"name": "Netvermogen L3"},
+            "grid_frequency": {"name": "Netfrequentie"},
             "backup_voltage_l1": {"name": "Back-upspanning L1"},
             "backup_voltage_l2": {"name": "Back-upspanning L2"},
             "backup_voltage_l3": {"name": "Back-upspanning L3"},

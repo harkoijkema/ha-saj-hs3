@@ -62,6 +62,7 @@
             "battery_power": {
                 "name": "Battery power"
             },
+            "battery_power_signed": {"name": "Battery power (signed)"},
             "pv_power": {
                 "name": "PV power"
             },
@@ -122,6 +123,16 @@
             "pv2_voltage": {"name": "PV2 voltage"},
             "pv2_current": {"name": "PV2 current"},
             "pv2_power": {"name": "PV2 power"},
+            "grid_voltage_l1": {"name": "Grid voltage L1"},
+            "grid_current_l1": {"name": "Grid current L1"},
+            "grid_power_l1": {"name": "Grid power L1"},
+            "grid_voltage_l2": {"name": "Grid voltage L2"},
+            "grid_current_l2": {"name": "Grid current L2"},
+            "grid_power_l2": {"name": "Grid power L2"},
+            "grid_voltage_l3": {"name": "Grid voltage L3"},
+            "grid_current_l3": {"name": "Grid current L3"},
+            "grid_power_l3": {"name": "Grid power L3"},
+            "grid_frequency": {"name": "Grid frequency"},
             "backup_voltage_l1": {"name": "Backup voltage L1"},
             "backup_voltage_l2": {"name": "Backup voltage L2"},
             "backup_voltage_l3": {"name": "Backup voltage L3"},

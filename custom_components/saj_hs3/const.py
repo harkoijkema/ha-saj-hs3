@@ -5,7 +5,7 @@ from typing import Final
 
 DOMAIN: Final = "saj_hs3"
 INTEGRATION_NAME: Final = "SAJ HS3 / Elekeeper"
-INTEGRATION_VERSION: Final = "0.7.0-alpha.1"
+INTEGRATION_VERSION: Final = "0.8.0-alpha.1"
 
 CONF_ENABLED_SOURCES: Final = "enabled_sources"
 CONF_ENABLE_LOCAL_EMANAGER: Final = "enable_local_emanager"
@@ -51,6 +51,7 @@ ALLOWED_EMS_DATA_IDS: Final = frozenset(REALTIME_EMS_DATA_IDS + ENERGY_EMS_DATA_
 # deliberately not user-configurable and do not form a general Modbus surface.
 TRANSMODBUS_READ_BLOCKS: Final = (
     ("03", "0x8F00", 13),
+    ("03", "0x4031", 19),
     ("03", "0x4055", 76),
     ("33", "0x0400", 2),
     ("35", "0x6506", 4),

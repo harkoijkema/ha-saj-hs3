@@ -257,6 +257,23 @@ def normalize_transmodbus_fields(
             "tm_inverter_rated_power": words[1],
             "tm_inverter_protocol_version": words[2] / 1000,
         }
+    if block == ("03", "0x4031", 19):
+
+        def signed(value: int) -> int:
+            return value - 0x10000 if value & 0x8000 else value
+
+        return {
+            "tm_grid_voltage_l1": words[0] / 10,
+            "tm_grid_current_l1": signed(words[1]) / 100,
+            "tm_grid_frequency": words[2] / 100,
+            "tm_grid_power_l1": signed(words[4]),
+            "tm_grid_voltage_l2": words[7] / 10,
+            "tm_grid_current_l2": signed(words[8]) / 100,
+            "tm_grid_power_l2": signed(words[11]),
+            "tm_grid_voltage_l3": words[14] / 10,
+            "tm_grid_current_l3": signed(words[15]) / 100,
+            "tm_grid_power_l3": signed(words[18]),
+        }
     if block == ("03", "0x4055", 76):
 
         def signed(value: int) -> int:
@@ -273,6 +290,7 @@ def normalize_transmodbus_fields(
             "tm_backup_voltage_l3": words[12] / 10,
             "tm_backup_current_l3": signed(words[13]) / 100,
             "tm_backup_power_l3": words[16],
+            "tm_battery_power_signed": signed(words[24]),
             "tm_pv1_voltage": words[28] / 10,
             "tm_pv1_current": words[29] / 100,
             "tm_pv1_power": words[30],
