@@ -11,6 +11,9 @@
 - confirmed EMS data and a small set of confirmed `transModbus` reads;
 - 49 power, energy, three-phase AC, PV, backup-output, battery and diagnostic
   entities;
+- an optional fixed read-only `AT+CHARGERINFO?` subread exposing the officially
+  defined raw charger status, charging power and total energy fields when the
+  eManager returns a valid charger response;
 - configuration and Bluetooth discovery through the Home Assistant UI;
 - optional official Elekeeper Open Platform authentication as a secondary source;
 - privacy-safe Home Assistant diagnostics;
@@ -62,8 +65,10 @@ password are never requested.
 ## Known limitations
 
 - This release supports only the currently confirmed local fields.
-- Individual battery modules, temperatures, SOH and EV-charger data are not
-  exposed unless their read-only meaning and transport are confirmed.
+- Individual battery modules, temperatures and SOH are not exposed unless
+  their read-only meaning and transport are confirmed.
+- EV connected/charging enums, phase values, session/daily energy and charging
+  costs are not exposed yet; their semantics are not sufficiently confirmed.
 - Energy totals remain `state_class: total`; reset and rollover semantics must
   be proven before they can safely become Energy Dashboard
   `total_increasing` sources.
