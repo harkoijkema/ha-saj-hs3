@@ -14,3 +14,5 @@ class SAJHS3SensorEntityDescription(SensorEntityDescription):
     source: str
     source_field: str
     evidence: str
+    availability_field: str | None = None
+    device_role: str = "emanager"

@@ -13,6 +13,7 @@ from custom_components.saj_hs3.const import (
     REALTIME_EMS_DATA_IDS,
 )
 from custom_components.saj_hs3.local_protocol import (
+    CHARGER_INFO_READ_REQUEST,
     FrameAssembler,
     SajLocalProtocolError,
     SajLocalSafetyError,
@@ -23,6 +24,7 @@ from custom_components.saj_hs3.local_protocol import (
     encode_frames,
     encrypt_payload,
     normalize_transmodbus_fields,
+    parse_charger_info_response,
     parse_device_discovery_response,
     parse_reading_device_response,
     parse_sinfo_response,
@@ -129,6 +131,23 @@ def test_no_raw_or_state_changing_command_surface() -> None:
         "send_modbus",
     )
     assert not any(term in source for term in forbidden)
+
+
+def test_charger_query_is_fixed_and_response_is_strict() -> None:
+    assert CHARGER_INFO_READ_REQUEST == b"0AT+CHARGERINFO?\r\n"
+    payload = (
+        b'0AT+CHARGERINFO? response={"chargerInfo":'
+        b'{"status":2,"power":3456,"totalEnergy":123}}\r\n'
+    )
+    assert parse_charger_info_response(payload) == {
+        "ev_charger_status_raw": 2,
+        "ev_charger_power_raw": 3456,
+        "ev_charger_total_energy_raw": 123,
+    }
+    with pytest.raises(SajLocalProtocolError):
+        parse_charger_info_response(
+            b'0JSON={"chargerInfo":{"status":2,"power":"3456","totalEnergy":123}}\r\n'
+        )
 
 
 def test_device_discovery_selects_only_online_hs3() -> None:

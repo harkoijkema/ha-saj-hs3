@@ -21,6 +21,7 @@ from custom_components.saj_hs3.local_client import (
     SajLocalConnectionError,
 )
 from custom_components.saj_hs3.local_protocol import (
+    CHARGER_INFO_READ_REQUEST,
     FrameAssembler,
     decrypt_payload,
     derive_session_key,
@@ -102,6 +103,21 @@ class FakeClient:
             payload = (
                 b'0JSON={"devices":[{"state":"1","devicetype":"pcs",'
                 b'"ddf":"1610_v1.0.240816.csv","sn":"TEST-HS3"}]}\r\n'
+            )
+            self.assembler = FrameAssembler()
+            self.request_count += 1
+            assert self.callback is not None
+            for response_frame in encode_frames(
+                encrypt_payload(payload, self.key),
+                self.request_count,
+                GATT_WRITE_LIMIT,
+            ):
+                self.callback(None, bytearray(response_frame))
+            return
+        if plaintext.encode() == CHARGER_INFO_READ_REQUEST:
+            payload = (
+                b'0AT+CHARGERINFO? response={"chargerInfo":'
+                b'{"status":1,"power":0,"totalEnergy":321}}\r\n'
             )
             self.assembler = FrameAssembler()
             self.request_count += 1
@@ -237,6 +253,31 @@ class NoResponseClient(FakeClient):
         assert response is True
 
 
+class MalformedChargerClient(FakeClient):
+    """Return malformed charger data while all core reads stay valid."""
+
+    async def write_gatt_char(self, uuid: str, frame: bytes, *, response: bool) -> None:
+        encrypted = self.assembler.add(frame)
+        if encrypted is None:
+            return
+        plaintext = decrypt_payload(encrypted, self.key)
+        if plaintext != CHARGER_INFO_READ_REQUEST:
+            self.assembler = FrameAssembler()
+            for request_frame in encode_frames(
+                encrypt_payload(plaintext, self.key), 0, GATT_WRITE_LIMIT
+            ):
+                await super().write_gatt_char(uuid, request_frame, response=response)
+            return
+        payload = b'0AT+CHARGERINFO? response={"chargerInfo":{"status":"bad"}}\r\n'
+        self.assembler = FrameAssembler()
+        self.request_count += 1
+        assert self.callback is not None
+        for response_frame in encode_frames(
+            encrypt_payload(payload, self.key), self.request_count, GATT_WRITE_LIMIT
+        ):
+            self.callback(None, bytearray(response_frame))
+
+
 def test_client_reads_only_fixed_allowlisted_sources(
     monkeypatch: object,
 ) -> None:
@@ -251,7 +292,7 @@ def test_client_reads_only_fixed_allowlisted_sources(
     client = SajLocalClient(lambda: object(), "test-address", "eManager:TEST")
     fields = asyncio.run(client.async_read_confirmed_fields())
 
-    assert fake.request_count == 9
+    assert fake.request_count == 10
     assert fake.disconnected is False
     assert fake.stop_notify_called is False
     assert set(REALTIME_EMS_DATA_IDS + ENERGY_EMS_DATA_IDS).issubset(fields)
@@ -271,15 +312,39 @@ def test_client_reads_only_fixed_allowlisted_sources(
     assert fields["tm_grid_frequency"] == 50.01
     assert fields["tm_pv1_voltage"] == 400.0
     assert fields["tm_pv2_power"] == 480
+    assert fields["ev_charger_available"] is True
+    assert fields["ev_charger_status_raw"] == 1
+    assert fields["ev_charger_power_raw"] == 0
+    assert fields["ev_charger_total_energy_raw"] == 321
     assert client.cycle_diagnostics["result"] == "success"
     assert client.cycle_diagnostics["stage"] == "complete"
-    assert client.cycle_diagnostics["request_count"] == 9
+    assert client.cycle_diagnostics["request_count"] == 10
     assert client.cycle_diagnostics["consecutive_failures"] == 0
     assert client.cycle_diagnostics["active_session"] is True
     assert (
         client.cycle_diagnostics["direction_observations"]["battery"]["5"]["samples"]
         == 1
     )
+
+
+def test_optional_charger_parse_failure_does_not_drop_core_fields(
+    monkeypatch: object,
+) -> None:
+    import custom_components.saj_hs3.local_client as module
+
+    fake = MalformedChargerClient()
+
+    async def connect(*args: object, **kwargs: object) -> FakeClient:
+        return fake
+
+    monkeypatch.setattr(module, "establish_connection", connect)  # type: ignore[attr-defined]
+    client = SajLocalClient(lambda: object(), "test-address", "eManager:TEST")
+    fields = asyncio.run(client.async_read_confirmed_fields())
+
+    assert fields["39"] == 1.0
+    assert fields["ev_charger_available"] is False
+    assert "ev_charger_power_raw" not in fields
+    assert client.cycle_diagnostics["result"] == "success"
 
 
 def test_client_reuses_one_gatt_session_across_polls(monkeypatch: object) -> None:
@@ -298,8 +363,8 @@ def test_client_reuses_one_gatt_session_across_polls(monkeypatch: object) -> Non
         client = SajLocalClient(lambda: object(), "test-address", "eManager:TEST")
         await client.async_read_confirmed_fields()
         await client.async_read_confirmed_fields()
-        assert fake.request_count == 16
-        assert client.cycle_diagnostics["request_count"] == 7
+        assert fake.request_count == 18
+        assert client.cycle_diagnostics["request_count"] == 8
         assert connects == 1
         assert fake.disconnected is False
         await client.async_close()

@@ -7,7 +7,7 @@ from custom_components.saj_hs3.sensor import LOCAL_SENSOR_DESCRIPTIONS
 
 
 def test_confirmed_sensor_expansion_is_defined() -> None:
-    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 49
+    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 52
     assert all(
         item.evidence
         in {
@@ -16,6 +16,7 @@ def test_confirmed_sensor_expansion_is_defined() -> None:
             "official_definition+live_block_coverage",
             "official_definition+exact_live_read_block",
             "official_definition+model_condition",
+            "official_definition+strict_readonly_contract",
         }
         for item in LOCAL_SENSOR_DESCRIPTIONS
     )
@@ -45,7 +46,19 @@ def test_sensor_keys_and_source_fields_do_not_create_duplicates() -> None:
     source_fields = {
         (item.source, item.source_field) for item in LOCAL_SENSOR_DESCRIPTIONS
     }
-    assert len(source_fields) == 49
+    assert len(source_fields) == 52
+
+
+def test_ev_entities_are_isolated_on_the_charger_device() -> None:
+    ev = [
+        item for item in LOCAL_SENSOR_DESCRIPTIONS if item.device_role == "ev_charger"
+    ]
+    assert {item.key for item in ev} == {
+        "ev_charger_status_raw",
+        "ev_charger_power",
+        "ev_charger_total_energy",
+    }
+    assert all(item.availability_field == "ev_charger_available" for item in ev)
 
 
 def test_confirmed_pv_and_backup_block_entities_are_offered() -> None:

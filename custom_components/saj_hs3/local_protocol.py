@@ -22,6 +22,10 @@ _MAGIC = b"\xff\xaa"
 _KEY_TAIL = b"kaSajC0#@23%0612"
 SINFO_READ_REQUEST = b"0AT+SINFO?\r\n"
 DEVICE_DISCOVERY_READ_REQUEST = b"0AT+EMSDEVICECONFIG?\r\n"
+# Official Elekeeper low-code forms use this exact query as the source for
+# chargerInfo.status, chargerInfo.power and chargerInfo.totalEnergy.  Keep it
+# fixed: this module intentionally exposes no generic AT command builder.
+CHARGER_INFO_READ_REQUEST = b"0AT+CHARGERINFO?\r\n"
 
 
 class SajLocalProtocolError(Exception):
@@ -172,6 +176,33 @@ def parse_device_discovery_response(payload: bytes) -> str:
     if len(matches) != 1:
         raise SajLocalProtocolError("No unique online HS3 target was discovered")
     return str(matches[0]["sn"])
+
+
+def parse_charger_info_response(payload: bytes) -> dict[str, int | float]:
+    """Parse only the three officially defined read-only charger fields."""
+    text = payload.decode("utf-8")
+    start, end = text.find("{"), text.rfind("}") + 1
+    if start < 0 or end <= start:
+        raise SajLocalProtocolError("Charger response contains no JSON")
+    try:
+        message = json.loads(text[start:end])
+        charger = message["chargerInfo"]
+    except (KeyError, TypeError, json.JSONDecodeError) as err:
+        raise SajLocalProtocolError("Invalid charger response") from err
+    if not isinstance(charger, dict):
+        raise SajLocalProtocolError("Invalid charger response object")
+
+    result: dict[str, int | float] = {}
+    for source_key, target_key in (
+        ("status", "ev_charger_status_raw"),
+        ("power", "ev_charger_power_raw"),
+        ("totalEnergy", "ev_charger_total_energy_raw"),
+    ):
+        value = charger.get(source_key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise SajLocalProtocolError(f"Invalid charger field type for {source_key}")
+        result[target_key] = value
+    return result
 
 
 def build_transmodbus_read_request(

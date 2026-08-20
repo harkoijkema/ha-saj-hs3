@@ -236,6 +236,41 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
             ("load", "36"),
         )
     ),
+    SAJHS3SensorEntityDescription(
+        key="ev_charger_status_raw",
+        translation_key="ev_charger_status_raw",
+        entity_category=EntityCategory.DIAGNOSTIC,
+        entity_registry_enabled_default=True,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field="ev_charger_status_raw",
+        availability_field="ev_charger_available",
+        device_role="ev_charger",
+        evidence="official_definition+strict_readonly_contract",
+    ),
+    SAJHS3SensorEntityDescription(
+        key="ev_charger_power",
+        translation_key="ev_charger_power",
+        device_class=SensorDeviceClass.POWER,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfPower.WATT,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field="ev_charger_power_raw",
+        availability_field="ev_charger_available",
+        device_role="ev_charger",
+        evidence="official_definition+strict_readonly_contract",
+    ),
+    SAJHS3SensorEntityDescription(
+        key="ev_charger_total_energy",
+        translation_key="ev_charger_total_energy",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field="ev_charger_total_energy_raw",
+        availability_field="ev_charger_available",
+        device_role="ev_charger",
+        evidence="official_definition+strict_readonly_contract",
+    ),
 )
 
 # These keys existed only in one local, unpublished validation build. Its
@@ -266,12 +301,21 @@ class SAJHS3Sensor(CoordinatorEntity[SAJHS3DataUpdateCoordinator], SensorEntity)
         super().__init__(coordinator)
         self.entity_description = description
         self._attr_unique_id = f"{entry.entry_id}_{description.key}"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, entry.entry_id)},
-            manufacturer="SAJ",
-            name="SAJ eManager",
-            model="eManager",
-        )
+        if description.device_role == "ev_charger":
+            self._attr_device_info = DeviceInfo(
+                identifiers={(DOMAIN, f"{entry.entry_id}_ev_charger")},
+                manufacturer="SAJ",
+                name="SAJ EV Charger",
+                model="Integrated HS3 EV Charger",
+                via_device=(DOMAIN, entry.entry_id),
+            )
+        else:
+            self._attr_device_info = DeviceInfo(
+                identifiers={(DOMAIN, entry.entry_id)},
+                manufacturer="SAJ",
+                name="SAJ eManager",
+                model="eManager",
+            )
 
     @property
     def native_value(self) -> float | str | None:
@@ -280,9 +324,14 @@ class SAJHS3Sensor(CoordinatorEntity[SAJHS3DataUpdateCoordinator], SensorEntity)
 
     @property
     def available(self) -> bool:
-        return (
+        source_available = (
             super().available
             and self.entity_description.source_field in self.coordinator.data.fields
+        )
+        availability_field = self.entity_description.availability_field
+        return source_available and (
+            availability_field is None
+            or self.coordinator.data.fields.get(availability_field) is True
         )
 
 

@@ -98,7 +98,10 @@
       "pv_direction_code": {"name": "PV direction code"},
       "battery_direction_code": {"name": "Battery direction code"},
       "grid_direction_code": {"name": "Grid direction code"},
-      "load_direction_code": {"name": "Load direction code"}
+      "load_direction_code": {"name": "Load direction code"},
+      "ev_charger_status_raw": {"name": "EV charger status code"},
+      "ev_charger_power": {"name": "EV charging power"},
+      "ev_charger_total_energy": {"name": "EV total charging energy"}
     }
   }
 }

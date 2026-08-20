@@ -21,6 +21,7 @@ from .const import (
     WRITE_UUID,
 )
 from .local_protocol import (
+    CHARGER_INFO_READ_REQUEST,
     DEVICE_DISCOVERY_READ_REQUEST,
     SINFO_READ_REQUEST,
     FrameAssembler,
@@ -32,6 +33,7 @@ from .local_protocol import (
     encode_frames,
     encrypt_payload,
     normalize_transmodbus_fields,
+    parse_charger_info_response,
     parse_device_discovery_response,
     parse_reading_device_response,
     parse_sinfo_response,
@@ -44,6 +46,7 @@ if TYPE_CHECKING:
 _CONNECT_TIMEOUT = 20.0
 _RESPONSE_TIMEOUT = 15.0
 _PRE_REQUEST_RETRY_DELAY = 5.0
+_OPTIONAL_CHARGER_RETRY_DELAY = 900.0
 _LOGGER = logging.getLogger(__name__)
 
 
@@ -82,6 +85,8 @@ class SajLocalClient:
         self._client: Any | None = None
         self._active_batch_reader: Callable[[], Awaitable[dict[str, Any]]] | None = None
         self._direction_observations: dict[str, dict[str, dict[str, float | int]]] = {}
+        self._charger_retry_after = 0.0
+        self._session_must_close = False
 
     @property
     def last_connection_source(self) -> str | None:
@@ -123,6 +128,8 @@ class SajLocalClient:
                 try:
                     self._set_stage("reuse_session")
                     result = await self._active_batch_reader()
+                    if self._session_must_close:
+                        await self._async_close_session()
                 except Exception as err:
                     failure_stage = (
                         err.stage
@@ -224,6 +231,7 @@ class SajLocalClient:
         read_error: BaseException | None = None
         read_error_stage: str | None = None
         try:
+            self._session_must_close = False
             result, batch_reader = await self._start_session(client)
         except BaseException as err:
             read_error = err
@@ -244,8 +252,15 @@ class SajLocalClient:
             raise read_error
         assert result is not None
         assert batch_reader is not None
-        self._client = client
-        self._active_batch_reader = batch_reader
+        if self._session_must_close:
+            try:
+                await client.disconnect()
+            except Exception:
+                self._last_cleanup_warning = True
+                _LOGGER.debug("eManager disconnect reported a cleanup warning")
+        else:
+            self._client = client
+            self._active_batch_reader = batch_reader
         return result
 
     def _record_failure(self, started: float) -> None:
@@ -387,8 +402,40 @@ class SajLocalClient:
                 words = parse_transmodbus_response(response, request_uuid, block)
                 result.update(normalize_transmodbus_fields(block, words))
                 sequence = (sequence + len(frames)) & 0xFF
+            result.update(await read_optional_charger_info())
             self._record_direction_observations(result)
             return result
+
+        async def read_optional_charger_info() -> dict[str, Any]:
+            """Read one fixed official charger query without risking core data."""
+            nonlocal assembler, future, sequence
+            if time.monotonic() < self._charger_retry_after:
+                return {"ev_charger_available": False}
+            frames = encode_frames(
+                encrypt_payload(CHARGER_INFO_READ_REQUEST, key),
+                sequence,
+                GATT_WRITE_LIMIT,
+            )
+            assembler = FrameAssembler()
+            future = asyncio.get_running_loop().create_future()
+            self._set_stage("charger_info")
+            self._last_request_count += 1
+            try:
+                for frame in frames:
+                    await client.write_gatt_char(WRITE_UUID, frame, response=True)
+                response = await self._await_response(future, stage="charger_info")
+                fields = parse_charger_info_response(response)
+            except (SajLocalConnectionError, SajLocalProtocolError):
+                self._charger_retry_after = (
+                    time.monotonic() + _OPTIONAL_CHARGER_RETRY_DELAY
+                )
+                if isinstance(future, asyncio.Future) and future.cancelled():
+                    self._session_must_close = True
+                _LOGGER.debug("Optional read-only EV charger query is unavailable")
+                return {"ev_charger_available": False}
+            sequence = (sequence + len(frames)) & 0xFF
+            self._charger_retry_after = 0.0
+            return {"ev_charger_available": True, **fields}
 
         return await read_batches(), read_batches
 

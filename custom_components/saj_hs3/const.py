@@ -5,7 +5,7 @@ from typing import Final
 
 DOMAIN: Final = "saj_hs3"
 INTEGRATION_NAME: Final = "SAJ HS3 / Elekeeper"
-INTEGRATION_VERSION: Final = "0.8.0-alpha.2"
+INTEGRATION_VERSION: Final = "0.9.0-alpha.1"
 
 CONF_ENABLED_SOURCES: Final = "enabled_sources"
 CONF_ENABLE_LOCAL_EMANAGER: Final = "enable_local_emanager"

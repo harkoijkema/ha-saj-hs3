@@ -147,7 +147,10 @@
             "battery_charge_voltage": {"name": "Battery charge voltage"},
             "battery_voltage_alarm": {"name": "Battery voltage alarm threshold"},
             "battery_charge_current_limit": {"name": "Battery charge current limit"},
-            "battery_discharge_current_limit": {"name": "Battery discharge current limit"}
+            "battery_discharge_current_limit": {"name": "Battery discharge current limit"},
+            "ev_charger_status_raw": {"name": "EV charger status code"},
+            "ev_charger_power": {"name": "EV charging power"},
+            "ev_charger_total_energy": {"name": "EV total charging energy"}
         }
     }
 }
