@@ -126,6 +126,27 @@ class FakeClient:
             words = ["0000"] * count
             if block == ("03", "0x8F00", 13):
                 words[:3] = ["1610", "2710", "03E8"]
+            elif block == ("03", "0x4055", 76):
+                values = {
+                    0: "08FC",
+                    1: "0064",
+                    2: "1388",
+                    4: "03E8",
+                    6: "08FD",
+                    7: "FF9C",
+                    10: "0384",
+                    12: "08FE",
+                    13: "0032",
+                    16: "0320",
+                    28: "0FA0",
+                    29: "007B",
+                    30: "01F4",
+                    31: "0F96",
+                    32: "0078",
+                    33: "01E0",
+                }
+                for index, value in values.items():
+                    words[index] = value
             elif block == ("33", "0x0400", 2):
                 words = ["0000", "2710"]
             elif block == ("35", "0x6506", 4):
@@ -212,7 +233,7 @@ def test_client_reads_only_fixed_allowlisted_sources(
     client = SajLocalClient(lambda: object(), "test-address", "eManager:TEST")
     fields = asyncio.run(client.async_read_confirmed_fields())
 
-    assert fake.request_count == 7
+    assert fake.request_count == 8
     assert fake.disconnected is False
     assert fake.stop_notify_called is False
     assert set(REALTIME_EMS_DATA_IDS + ENERGY_EMS_DATA_IDS).issubset(fields)
@@ -222,9 +243,14 @@ def test_client_reads_only_fixed_allowlisted_sources(
     assert fields["tm_battery_current"] == 5.6
     assert fields["tm_battery_voltage"] == 445.4
     assert fields["tm_inverter_type"] == "0x1610"
+    assert fields["tm_backup_voltage_l1"] == 230.0
+    assert fields["tm_backup_current_l2"] == -1.0
+    assert fields["tm_backup_frequency"] == 50.0
+    assert fields["tm_pv1_voltage"] == 400.0
+    assert fields["tm_pv2_power"] == 480
     assert client.cycle_diagnostics["result"] == "success"
     assert client.cycle_diagnostics["stage"] == "complete"
-    assert client.cycle_diagnostics["request_count"] == 7
+    assert client.cycle_diagnostics["request_count"] == 8
     assert client.cycle_diagnostics["consecutive_failures"] == 0
     assert client.cycle_diagnostics["active_session"] is True
     assert (
@@ -249,8 +275,8 @@ def test_client_reuses_one_gatt_session_across_polls(monkeypatch: object) -> Non
         client = SajLocalClient(lambda: object(), "test-address", "eManager:TEST")
         await client.async_read_confirmed_fields()
         await client.async_read_confirmed_fields()
-        assert fake.request_count == 12
-        assert client.cycle_diagnostics["request_count"] == 5
+        assert fake.request_count == 14
+        assert client.cycle_diagnostics["request_count"] == 6
         assert connects == 1
         assert fake.disconnected is False
         await client.async_close()

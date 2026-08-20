@@ -7,13 +7,14 @@ from custom_components.saj_hs3.sensor import LOCAL_SENSOR_DESCRIPTIONS
 
 
 def test_confirmed_sensor_expansion_is_defined() -> None:
-    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 22
+    assert len(LOCAL_SENSOR_DESCRIPTIONS) == 38
     assert all(
         item.evidence
         in {
             "official_definition+live_confirmed",
             "official_definition+exact_live_response",
             "official_definition+live_block_coverage",
+            "official_definition+exact_live_read_block",
         }
         for item in LOCAL_SENSOR_DESCRIPTIONS
     )
@@ -43,7 +44,29 @@ def test_sensor_keys_and_source_fields_do_not_create_duplicates() -> None:
     source_fields = {
         (item.source, item.source_field) for item in LOCAL_SENSOR_DESCRIPTIONS
     }
-    assert len(source_fields) == 22
+    assert len(source_fields) == 38
+
+
+def test_confirmed_pv_and_backup_block_entities_are_offered() -> None:
+    keys = {item.key for item in LOCAL_SENSOR_DESCRIPTIONS}
+    assert {
+        "pv1_voltage",
+        "pv1_current",
+        "pv1_power",
+        "pv2_voltage",
+        "pv2_current",
+        "pv2_power",
+        "backup_voltage_l1",
+        "backup_current_l1",
+        "backup_power_l1",
+        "backup_voltage_l2",
+        "backup_current_l2",
+        "backup_power_l2",
+        "backup_voltage_l3",
+        "backup_current_l3",
+        "backup_power_l3",
+        "backup_frequency",
+    }.issubset(keys)
 
 
 def test_no_placeholder_or_retired_grid_entities_are_offered() -> None:

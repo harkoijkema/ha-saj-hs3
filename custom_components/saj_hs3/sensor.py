@@ -14,6 +14,7 @@ from homeassistant.const import (
     UnitOfElectricCurrent,
     UnitOfElectricPotential,
     UnitOfEnergy,
+    UnitOfFrequency,
     UnitOfPower,
 )
 from homeassistant.core import HomeAssistant
@@ -54,6 +55,36 @@ def _energy(
         source=SOURCE_LOCAL_EMANAGER,
         source_field=data_id,
         evidence="official_definition+live_confirmed",
+    )
+
+
+def _voltage(
+    key: str, translation_key: str, source_field: str
+) -> SAJHS3SensorEntityDescription:
+    return SAJHS3SensorEntityDescription(
+        key=key,
+        translation_key=translation_key,
+        device_class=SensorDeviceClass.VOLTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field=source_field,
+        evidence="official_definition+exact_live_read_block",
+    )
+
+
+def _current(
+    key: str, translation_key: str, source_field: str
+) -> SAJHS3SensorEntityDescription:
+    return SAJHS3SensorEntityDescription(
+        key=key,
+        translation_key=translation_key,
+        device_class=SensorDeviceClass.CURRENT,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field=source_field,
+        evidence="official_definition+exact_live_read_block",
     )
 
 
@@ -140,6 +171,31 @@ LOCAL_SENSOR_DESCRIPTIONS: tuple[SAJHS3SensorEntityDescription, ...] = (
         source_field="tm_battery_voltage",
         evidence="official_definition+live_block_coverage",
     ),
+    _voltage("pv1_voltage", "pv1_voltage", "tm_pv1_voltage"),
+    _current("pv1_current", "pv1_current", "tm_pv1_current"),
+    _power("pv1_power", "pv1_power", "tm_pv1_power"),
+    _voltage("pv2_voltage", "pv2_voltage", "tm_pv2_voltage"),
+    _current("pv2_current", "pv2_current", "tm_pv2_current"),
+    _power("pv2_power", "pv2_power", "tm_pv2_power"),
+    _voltage("backup_voltage_l1", "backup_voltage_l1", "tm_backup_voltage_l1"),
+    _current("backup_current_l1", "backup_current_l1", "tm_backup_current_l1"),
+    _power("backup_power_l1", "backup_power_l1", "tm_backup_power_l1"),
+    _voltage("backup_voltage_l2", "backup_voltage_l2", "tm_backup_voltage_l2"),
+    _current("backup_current_l2", "backup_current_l2", "tm_backup_current_l2"),
+    _power("backup_power_l2", "backup_power_l2", "tm_backup_power_l2"),
+    _voltage("backup_voltage_l3", "backup_voltage_l3", "tm_backup_voltage_l3"),
+    _current("backup_current_l3", "backup_current_l3", "tm_backup_current_l3"),
+    _power("backup_power_l3", "backup_power_l3", "tm_backup_power_l3"),
+    SAJHS3SensorEntityDescription(
+        key="backup_frequency",
+        translation_key="backup_frequency",
+        device_class=SensorDeviceClass.FREQUENCY,
+        state_class=SensorStateClass.MEASUREMENT,
+        native_unit_of_measurement=UnitOfFrequency.HERTZ,
+        source=SOURCE_LOCAL_EMANAGER,
+        source_field="tm_backup_frequency",
+        evidence="official_definition+exact_live_read_block",
+    ),
     *tuple(
         SAJHS3SensorEntityDescription(
             key=f"{key}_direction_code",
@@ -174,22 +230,6 @@ _RETIRED_LOCAL_VALIDATION_KEYS = (
     "grid_power_l3",
     "grid_frequency",
     "grid_meter_status",
-    "pv1_voltage",
-    "pv1_current",
-    "pv1_power",
-    "pv2_voltage",
-    "pv2_current",
-    "pv2_power",
-    "backup_voltage_l1",
-    "backup_voltage_l2",
-    "backup_voltage_l3",
-    "backup_current_l1",
-    "backup_current_l2",
-    "backup_current_l3",
-    "backup_power_l1",
-    "backup_power_l2",
-    "backup_power_l3",
-    "backup_frequency",
 )
 _WORKING_DIAGNOSTIC_KEYS = (
     "ems_operating_strategy",

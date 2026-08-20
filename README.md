@@ -9,7 +9,7 @@
 - local polling through Home Assistant Bluetooth or an ESPHome Bluetooth Proxy;
 - a persistent, read-only BLE/GATT and BSaj session with the eManager;
 - confirmed EMS data and a small set of confirmed `transModbus` reads;
-- 22 power, energy, battery and diagnostic entities;
+- 38 power, energy, PV, backup-output, battery and diagnostic entities;
 - configuration and Bluetooth discovery through the Home Assistant UI;
 - optional official Elekeeper Open Platform authentication as a secondary source;
 - privacy-safe Home Assistant diagnostics;
@@ -67,6 +67,18 @@ password are never requested.
   connect until Home Assistant sees the eManager again.
 - Alpha releases can change entity availability and configuration behavior.
 - No write or control functionality is included.
+
+## Bluetooth Proxy recovery
+
+The eManager advertisement can be very weak and strongly dependent on proxy
+placement. The validated installation received it around `-80` to `-84 dBm`;
+earlier positions were around `-89 dBm` or weaker and discovery failed.
+
+If the eManager is missing, first confirm that the ESPHome proxy is online and
+actively scanning, then use Home Assistant's Bluetooth advertisement monitor
+and filter on `eManager`. Move the proxy until a connectable advertisement is
+visible before reloading this integration. An eManager reboot is not a normal
+recovery step and should not be proposed by default.
 
 ## Branding
 

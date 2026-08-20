@@ -165,6 +165,35 @@ def test_transmodbus_allowlist_and_normalization() -> None:
     }
 
 
+def test_confirmed_hs3_pv_and_backup_block_normalization() -> None:
+    words = [0] * 76
+    words[0:3] = [2300, 100, 5000]
+    words[4] = 1000
+    words[6:8] = [2301, 0xFF9C]
+    words[10] = 900
+    words[12:14] = [2302, 50]
+    words[16] = 800
+    words[28:34] = [4000, 123, 500, 3990, 120, 480]
+    assert normalize_transmodbus_fields(("03", "0x4055", 76), words) == {
+        "tm_backup_voltage_l1": 230.0,
+        "tm_backup_current_l1": 1.0,
+        "tm_backup_frequency": 50.0,
+        "tm_backup_power_l1": 1000,
+        "tm_backup_voltage_l2": 230.1,
+        "tm_backup_current_l2": -1.0,
+        "tm_backup_power_l2": 900,
+        "tm_backup_voltage_l3": 230.2,
+        "tm_backup_current_l3": 0.5,
+        "tm_backup_power_l3": 800,
+        "tm_pv1_voltage": 400.0,
+        "tm_pv1_current": 1.23,
+        "tm_pv1_power": 500,
+        "tm_pv2_voltage": 399.0,
+        "tm_pv2_current": 1.2,
+        "tm_pv2_power": 480,
+    }
+
+
 def test_transmodbus_response_requires_exact_contract() -> None:
     message = {
         "function": "transModbus_rsp",
