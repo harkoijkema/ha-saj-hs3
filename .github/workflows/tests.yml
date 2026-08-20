@@ -18,7 +18,7 @@ jobs:
           python-version: "3.13"
           cache: pip
       - name: Install test dependencies
-        run: python -m pip install homeassistant mypy pytest ruff
+        run: python -m pip install aiousbwatcher homeassistant mypy pytest ruff
       - name: Pytest
         run: pytest
       - name: Ruff
