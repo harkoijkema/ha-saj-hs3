@@ -246,6 +246,15 @@ balances, particularly during battery or EV start/stop transitions.
 - The integration is read-only. EV start/stop, inverter settings, battery control
   and undocumented write commands are intentionally outside scope.
 
+### HACS icon display
+
+The integration includes local Home Assistant brand assets, and its icon is
+displayed correctly in Home Assistant's Integrations view. Some HACS versions
+may still show `icon not available` for custom repositories because their
+catalogue does not consistently use local custom-integration brand assets. This
+is a HACS presentation limitation and does not affect the integration or its
+local Home Assistant branding.
+
 ## Example energy dashboard
 
 ![Live Energy Topology example](docs/images/energy-dashboard-live-topology.png)
@@ -334,10 +343,9 @@ published release as its remote version; a tag by itself is not a release.
 
 The SAJ HS3 icon above is also shipped as local integration brand imagery in
 `custom_components/saj_hs3/brand/`. Home Assistant 2026.3 and newer can use
-these local assets. For the HACS catalogue and Home Assistant versions before
-2026.3, the corresponding `custom_integrations/saj_hs3` assets must additionally
-be accepted by the separate
-[Home Assistant Brands repository](https://github.com/home-assistant/brands).
+these local assets. The central
+[Home Assistant Brands repository](https://github.com/home-assistant/brands)
+no longer accepts icon submissions for custom integrations.
 
 ## License, branding and disclaimer
 
