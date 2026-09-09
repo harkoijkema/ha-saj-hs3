@@ -1,8 +1,6 @@
 # SAJ HS3 / eManager for Home Assistant
 
-<p align="center">
-  <img src="docs/images/saj-hs3-icon.png" width="160" alt="SAJ HS3 integration icon">
-</p>
+![SAJ HS3 integration icon](docs/images/saj-hs3-icon.png)
 
 A read-only Home Assistant integration for supported SAJ HS3 systems with an
 eManager. It uses local BLE communication through Home Assistant Bluetooth or
