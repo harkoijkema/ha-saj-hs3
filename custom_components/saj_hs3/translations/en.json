@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "Choose data sources",
-                "description": "This experimental integration is strictly read-only. Local eManager is the primary source; Elekeeper Open Platform remains optional.",
+                "description": "This integration is strictly read-only. Local eManager is the primary source; Elekeeper Open Platform remains optional.",
                 "data": {
                     "enable_local_emanager": "Local eManager (recommended)",
                     "enable_open_platform": "Elekeeper Open Platform"
@@ -143,11 +143,6 @@
             "backup_power_l2": {"name": "Backup power L2"},
             "backup_power_l3": {"name": "Backup power L3"},
             "backup_frequency": {"name": "Backup frequency"},
-            "battery_status_code": {"name": "Battery status code"},
-            "battery_charge_voltage": {"name": "Battery charge voltage"},
-            "battery_voltage_alarm": {"name": "Battery voltage alarm threshold"},
-            "battery_charge_current_limit": {"name": "Battery charge current limit"},
-            "battery_discharge_current_limit": {"name": "Battery discharge current limit"},
             "ev_charger_status_raw": {"name": "EV charger status code"},
             "ev_charger_power": {"name": "EV charging power"},
             "ev_charger_total_energy": {"name": "EV total charging energy"}

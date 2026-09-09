@@ -4,7 +4,7 @@
         "step": {
             "user": {
                 "title": "Gegevensbronnen kiezen",
-                "description": "Deze experimentele integratie is strikt alleen-lezen. Lokale eManager is de primaire bron; Elekeeper Open Platform blijft optioneel.",
+                "description": "Deze integratie is strikt alleen-lezen. Lokale eManager is de primaire bron; Elekeeper Open Platform blijft optioneel.",
                 "data": {
                     "enable_local_emanager": "Lokale eManager (aanbevolen)",
                     "enable_open_platform": "Elekeeper Open Platform"
@@ -143,11 +143,6 @@
             "backup_power_l2": {"name": "Back-upvermogen L2"},
             "backup_power_l3": {"name": "Back-upvermogen L3"},
             "backup_frequency": {"name": "Back-upfrequentie"},
-            "battery_status_code": {"name": "Batterijstatuscode"},
-            "battery_charge_voltage": {"name": "Batterijlaadspanning"},
-            "battery_voltage_alarm": {"name": "Alarmgrens batterijspanning"},
-            "battery_charge_current_limit": {"name": "Laadstroomlimiet batterij"},
-            "battery_discharge_current_limit": {"name": "Ontlaadstroomlimiet batterij"},
             "ev_charger_status_raw": {"name": "EV-laderstatuscode"},
             "ev_charger_power": {"name": "EV-laadvermogen"},
             "ev_charger_total_energy": {"name": "Totale EV-laadenergie"}

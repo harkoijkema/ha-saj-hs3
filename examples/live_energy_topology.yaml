@@ -1,0 +1,581 @@
+# Example card exported from the approved Energie TMP Live Energy Topology.
+# Replace every sensor.example_* placeholder before use. See examples/README.md.
+# Requires custom:button-card. Keep the SVG paths, breakpoints, Motion Path and
+# Safari 15 / iPadOS 15 SMIL fallback together when adapting the example.
+
+type: custom:button-card
+show_icon: false
+show_name: true
+tap_action:
+  action: none
+hold_action:
+  action: none
+triggers_update:
+- sensor.example_p1_active_power
+- sensor.example_p1_energy_import_total
+- sensor.example_p1_energy_export_total
+- sensor.example_grid_import_cost_total
+- sensor.example_grid_export_revenue_total
+- sensor.example_saj_pv_power
+- sensor.example_saj_pv_energy_total
+- sensor.example_saj_load_power
+- sensor.example_house_power
+- sensor.example_saj_load_energy_total
+- sensor.example_house_energy_today
+- sensor.example_house_cost_today
+- sensor.example_saj_ev_charger_power
+- sensor.example_saj_ev_charger_total_energy
+- sensor.example_ev_battery_level
+- sensor.example_saj_battery_power
+- sensor.example_saj_battery_direction_code
+- sensor.example_saj_battery_soc
+- sensor.example_saj_battery_charge_energy_total
+- sensor.example_saj_battery_discharge_energy_total
+- sensor.example_saj_grid_power
+- sensor.example_saj_grid_direction_code
+- sensor.example_external_battery_power
+- sensor.example_external_battery_charge_energy_total
+- sensor.example_external_battery_discharge_energy_total
+- sensor.example_external_battery_discharge_energy_today
+- sensor.example_external_battery_charge_energy_today
+- sensor.example_external_battery_result_today
+- sensor.example_external_battery_soc
+- sensor.example_grid_import_energy_today
+- sensor.example_grid_import_cost_today
+- sensor.example_grid_export_energy_today
+- sensor.example_grid_export_revenue_today
+- sensor.example_saj_grid_import_energy_today
+- sensor.example_saj_grid_export_energy_today
+- sensor.example_external_battery_charge_energy_today
+- sensor.example_external_battery_discharge_energy_today
+- sensor.example_accounted_house_energy_today
+- sensor.example_accounted_house_cost_today
+- sensor.example_accounted_ev_energy_today
+- sensor.example_accounted_ev_cost_today
+grid_options:
+  columns: full
+  rows: auto
+styles:
+  card:
+  - padding: 0
+  - overflow: hidden
+  - border-radius: 22px
+  - border: 1px solid rgba(45, 60, 67, 0.2)
+  - background: "#d2d2cf"
+  - box-shadow: 0 18px 42px rgba(43, 52, 55, 0.16), inset 0 1px 0 rgba(255, 255, 255,
+      0.58)
+  grid:
+  - grid-template-areas: '"n"'
+  - grid-template-columns: 1fr
+  name:
+  - width: 100%
+  - white-space: normal
+  - display: block
+  - padding: 0
+  - margin: 0
+  - text-align: left
+name: |-
+  [[[
+    const n = (id, fallback = 0) => {
+      const value = Number(states[id]?.state);
+      return Number.isFinite(value) ? value : fallback;
+    };
+    const watts = value => {
+      const abs = Math.abs(value);
+      return abs >= 1000
+        ? `${(abs / 1000).toFixed(abs >= 10000 ? 1 : 2)} kW`
+        : `${Math.round(abs)} W`;
+    };
+    const euro = value => Number.isFinite(value) ? `${value >= 0 ? '+' : '−'}€ ${Math.abs(value).toFixed(2)}` : '—';
+    const kwh = value => Number.isFinite(value) ? `${value.toFixed(2)} kWh` : '—';
+    const nl = (value, digits = 2) => Number.isFinite(value)
+      ? value.toLocaleString('nl-NL', { minimumFractionDigits: digits, maximumFractionDigits: digits })
+      : '—';
+    const esc = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    const clamp = value => Number.isFinite(value) ? Math.max(0, Math.min(100, value)) : 0;
+
+    const p1 = n('sensor.example_p1_active_power');
+    const nexus = n('sensor.example_external_battery_power');
+    const nexusSoc = clamp(n('sensor.example_external_battery_soc', NaN));
+    const nexusImportToday = n('sensor.example_external_battery_charge_energy_today', NaN);
+      const nexusExportToday = n('sensor.example_external_battery_discharge_energy_today', NaN);
+      const sajGridImportToday = n('sensor.example_saj_grid_import_energy_today', NaN);
+      const sajGridExportToday = n('sensor.example_saj_grid_export_energy_today', NaN);
+    const nexusResultToday = n('sensor.example_external_battery_result_today', NaN);
+    const netImportToday = n('sensor.example_grid_import_energy_today', NaN);
+    const netImportCostToday = n('sensor.example_grid_import_cost_today', NaN);
+    const netExportToday = n('sensor.example_grid_export_energy_today', NaN);
+    const netExportRevenueToday = n('sensor.example_grid_export_revenue_today', NaN);
+
+    const sajGrid = n('sensor.example_saj_grid_power');
+    const sajGridDirection = n('sensor.example_saj_grid_direction_code');
+    const pv = n('sensor.example_saj_pv_power');
+    const sajBattery = n('sensor.example_saj_battery_power');
+    const sajBatteryDirection = n('sensor.example_saj_battery_direction_code');
+    const sajSoc = clamp(n('sensor.example_saj_battery_soc', NaN));
+    const home = n('sensor.example_house_power');
+    const monitoredToday = n('sensor.example_house_energy_today', NaN);
+    const monitoredCostToday = n('sensor.example_house_cost_today', NaN);
+    const ev = n('sensor.example_saj_ev_charger_power');
+    const evSocRaw = n('sensor.example_ev_battery_level', NaN);
+    const evSocKnown = Number.isFinite(evSocRaw);
+    const evSoc = clamp(evSocRaw);
+
+    const threshold = 25;
+  const homeKnown = Number.isFinite(home);
+  const homeStatus = homeKnown ? (home > threshold ? 'Verbruik' : 'Rust') : (Number.isFinite(ev) && ev >= threshold ? 'Niet beschikbaar tijdens EV-laden' : 'Tijdelijk niet beschikbaar');
+  const homeValue = homeKnown ? watts(home) : '\u0014';
+    const duration = power => Math.abs(power) >= 7000 ? 1.25 : Math.abs(power) >= 2500 ? 1.75 : 2.6;
+    let flowIndex = 0;
+    const motionPathSupported = typeof CSS !== 'undefined'
+      && typeof CSS.supports === 'function'
+      && CSS.supports('offset-path', "path('M0 0 L1 1')")
+      && CSS.supports('offset-distance', '100%');
+    const prefersReducedMotion = typeof window !== 'undefined'
+      && typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const flow = (path, power, active, family, forward = true, isolated = false) => {
+      const id = `schematic-flow-${++flowIndex}`;
+      const tone = active ? family : 'idle';
+      const seconds = duration(power);
+      const direction = forward ? 'forward' : 'reverse';
+      const ball = !active ? '' : motionPathSupported
+        ? `<circle r="7" class="flow-ball ${family} ${direction}" style="offset-path:path('${path}');--duration:${seconds}s"/>`
+        : `<circle r="7" class="flow-ball ${family} ${direction} smil-fallback" style="--duration:${seconds}s"><animateMotion dur="${prefersReducedMotion ? 4.5 : seconds}s" repeatCount="indefinite" calcMode="linear" keyPoints="${forward ? '0;1' : '1;0'}" keyTimes="0;1" rotate="0"><mpath href="#${id}" xlink:href="#${id}"/></animateMotion></circle>`;
+      return `${isolated ? `<path d="${path}" class="wire-separator"/>` : ''}<path id="${id}" d="${path}" class="wire ${tone}"/>${ball}`;
+    };
+
+    const p1Active = Math.abs(p1) > threshold;
+    const p1Family = p1 >= 0 ? 'red' : 'green';
+    const p1Forward = p1 >= 0;
+  const fmtFlowPower = p => p >= 1000 ? (p / 1000).toFixed(2) + ' kW' : Math.round(p) + ' W';
+  const flowPowerLabel = (x,y,p,a,f) => {
+    if (!a) return '';
+    const c = f === 'green' ? '#078b35' : '#b01731';
+    return '<g><rect x="'+(x-52)+'" y="'+(y-17)+'" width="104" height="34" rx="7" fill="#8d8e8f" fill-opacity="0.58" stroke="'+c+'" stroke-width="2"/><text x="'+x+'" y="'+(y+1)+'" text-anchor="middle" dominant-baseline="middle" style="font:700 17px Arial,sans-serif;fill:#fff">'+fmtFlowPower(p)+'</text></g>';
+  };
+
+  const nexusActive = Math.abs(nexus) > threshold;
+    const nexusFamily = nexus >= 0 ? 'red' : 'green';
+    const nexusForward = nexus < 0;
+
+    const sajGridKnown = sajGridDirection === -1 || sajGridDirection === 1;
+    const sajGridActive = sajGrid > threshold && sajGridKnown;
+    const sajGridImport = sajGridDirection === -1;
+    const sajGridFamily = sajGridImport ? 'red' : 'green';
+    const sajGridForward = sajGridImport;
+
+    const sajBatteryKnown = sajBatteryDirection === -1 || sajBatteryDirection === 1;
+    const sajBatteryActive = sajBattery > threshold && sajBatteryKnown;
+    const sajBatteryCharging = sajBatteryDirection === -1;
+    const sajBatteryFamily = sajBatteryCharging ? 'red' : 'green';
+    const sajBatteryForward = sajBatteryCharging;
+
+    const homeActive = homeKnown && home > threshold;
+    const evActive = ev > threshold;
+    const pvActive = pv > threshold;
+
+    const p1Mode = !p1Active ? 'Rust' : p1 > 0 ? 'Import' : 'Export';
+    const nexusMode = !nexusActive ? 'Rust' : nexus > 0 ? 'Laden' : 'Ontladen';
+    const sajGridMode = !sajGridActive ? 'Net rust' : sajGridImport ? 'Netimport' : 'Netexport';
+    const sajBatteryMode = !sajBatteryActive ? 'Rust' : sajBatteryCharging ? 'Laden' : 'Ontladen';
+
+    // Bronverdeling aan de eManager-grens. Dit gebruikt uitsluitend de bestaande,
+    // gevalideerde topologie P1 = Nexus + signed SAJ-grid; er worden geen nieuwe
+    // Home Assistant-sensoren of energietellers aangemaakt.
+    const sajGridSigned = sajGridKnown ? (sajGridImport ? sajGrid : -sajGrid) : 0;
+    const sajBranchImport = Math.max(sajGridSigned, 0);
+    const sajBranchExport = Math.max(-sajGridSigned, 0);
+    const nexusDischarge = Math.max(-nexus, 0);
+    const nexusCharge = Math.max(nexus, 0);
+    const zonneplanIntoEmanager = Math.min(nexusDischarge, sajBranchImport);
+    const netIntoEmanager = Math.max(sajBranchImport - zonneplanIntoEmanager, 0);
+    const emanagerToZonneplan = Math.min(nexusCharge, sajBranchExport);
+    const emanagerToNet = Math.max(sajBranchExport - emanagerToZonneplan, 0);
+  const smartToZonneplan = Math.max(nexusCharge - emanagerToZonneplan, 0);
+  const zonneplanToSmart = Math.max(nexusDischarge - zonneplanIntoEmanager, 0);
+  const zonneplanSmartPower = Math.max(smartToZonneplan, zonneplanToSmart);
+  const zonneplanSmartActive = zonneplanSmartPower > threshold;
+  const zonneplanSmartFamily = smartToZonneplan > threshold ? 'red' : zonneplanToSmart > threshold ? 'green' : 'idle';
+  const zonneplanSmartForward = smartToZonneplan > threshold;
+    const zonneplanEmanagerPower = Math.max(zonneplanIntoEmanager, emanagerToZonneplan);
+    const zonneplanEmanagerActive = zonneplanEmanagerPower > threshold;
+    const zonneplanEmanagerFamily = zonneplanIntoEmanager > threshold ? 'green' : emanagerToZonneplan > threshold ? 'red' : 'idle';
+    const zonneplanEmanagerForward = zonneplanIntoEmanager > threshold;
+      // Alleen het resterende Nexus-vermogen loopt rechtstreeks naar/vanaf de slimme meter.
+
+    const netEmanagerPower = Math.max(netIntoEmanager, emanagerToNet);
+    const netEmanagerActive = netEmanagerPower > threshold;
+    const netEmanagerFamily = netIntoEmanager > threshold ? 'red' : emanagerToNet > threshold ? 'green' : 'idle';
+    const netEmanagerForward = netIntoEmanager > threshold;
+    const pvIntoEmanager = Math.max(pv, 0);
+    const sajBatteryIntoEmanager = sajBatteryKnown && !sajBatteryCharging ? sajBattery : 0;
+    const emanagerToSajBattery = sajBatteryKnown && sajBatteryCharging ? sajBattery : 0;
+
+    const directionValue = (importPower, exportPower, importFamily, exportFamily) => {
+      if (importPower > threshold) return { text: `Import · ${watts(importPower)}`, family: importFamily };
+      if (exportPower > threshold) return { text: `Export · ${watts(exportPower)}`, family: exportFamily };
+      return { text: 'Rust · 0 W', family: 'idle' };
+    };
+    const emanagerFlows = [
+      ['Net', directionValue(netIntoEmanager, emanagerToNet, 'red', 'green')],
+      ['Zonneplan', directionValue(zonneplanIntoEmanager, emanagerToZonneplan, 'green', 'red')],
+      ['Zonnepanelen', directionValue(pvIntoEmanager, 0, 'green', 'idle')],
+      ['SAJ-batterij', directionValue(sajBatteryIntoEmanager, emanagerToSajBattery, 'green', 'red')],
+    ];
+
+    const tileCopy = (x, y, width, title, status, power, detail = '', family = 'idle') => `
+      <g class="tile-copy ${family}">
+        <text x="${x + width / 2}" y="${y + 122}" class="tile-title">${esc(title)}</text>
+        <text x="${x + width / 2}" y="${y + 147}" class="tile-status">${esc(status)}</text>
+        <text x="${x + width / 2}" y="${y + 176}" class="tile-power">${esc(power)}</text>
+        ${detail ? `<text x="${x + width / 2}" y="${y + 197}" class="tile-detail">${esc(detail)}</text>` : ''}
+      </g>`;
+
+    const mobileTileCopy = (x, y, width, title, status, power, detail = '', family = 'idle') => `
+      <g class="tile-copy mobile-copy ${family}">
+        <text x="${x + width / 2}" y="${y + 126}" class="tile-title">${esc(title)}</text>
+        <text x="${x + width / 2}" y="${y + 154}" class="tile-status">${esc(status)}</text>
+        <text x="${x + width / 2}" y="${y + 188}" class="tile-power">${esc(power)}</text>
+        ${detail ? `<text x="${x + width / 2}" y="${y + 213}" class="tile-detail">${esc(detail)}</text>` : ''}
+      </g>`;
+
+    const tabletTileCopy = (x, y, width, title, status, power, family = 'idle') => `
+      <g class="tile-copy tablet-copy ${family}">
+        <text x="${x + width / 2}" y="${y + 95}" class="tile-title">${esc(title)}</text>
+        <text x="${x + width / 2}" y="${y + 119}" class="tile-status">${esc(status)}</text>
+        <text x="${x + width / 2}" y="${y + 145}" class="tile-power">${esc(power)}</text>
+      </g>`;
+
+    const metric = (label, value, tone = '') => ({ label, value, tone });
+    const dayFmt = value => Number.isFinite(value) ? (Math.round(value * 100) / 100).toLocaleString('nl-NL', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+      const dayKwh = value => Number.isFinite(value) ? `${dayFmt(value)} kWh` : '-';
+      const dayRows = [
+        { label: 'Totaal net', tone: 'mixed', energy: [metric('Import', dayKwh(netImportToday), 'cost'), metric('Export', dayKwh(netExportToday), 'gain')], money: [metric('Kosten', `- EUR ${dayFmt(netImportCostToday)}`, 'cost'), metric('Opbrengst', `+ EUR ${dayFmt(netExportRevenueToday)}`, 'gain')] },
+        { label: 'SAJ eManager', tone: 'mixed', energy: [metric('Import', dayKwh(sajGridImportToday), 'cost'), metric('Export', dayKwh(sajGridExportToday), 'gain')], money: [metric('Kosten', '-', 'idle'), metric('Opbrengst', '-', 'idle')] },
+        { label: 'Zonneplan batterij', tone: 'mixed', energy: [metric('Import', dayKwh(nexusImportToday), 'cost'), metric('Export', dayKwh(nexusExportToday), 'gain')], money: [metric('Kosten', '-', 'idle'), metric('Opbrengst', '-', 'idle')] },
+        { label: 'SAJ 10 kWh', tone: 'idle', energy: [metric('Laden vandaag', kwh(Number(states['sensor.example_saj_battery_charge_energy_today']?.state)), 'cost'), metric('Ontladen vandaag', 'Nog niet bewezen', 'idle')], money: [metric('Financieel', '—', 'idle')] },
+        { label: 'Huis', tone: 'cost', energy: [metric('Vandaag', kwh(Number(states['sensor.example_accounted_house_energy_today']?.state)), 'cost')], money: [metric('Kosten', euro(-Number(states['sensor.example_accounted_house_cost_today']?.state)), 'cost')] },
+        { label: 'Zonnepanelen', tone: 'gain', energy: [metric('Productie vandaag', kwh(Number(states['sensor.example_saj_pv_energy_today']?.state)), 'gain')], money: [metric('Financieel', '—', 'idle')] },
+        { label: 'EV-lader', tone: 'cost', energy: [metric('Vandaag', kwh(Number(states['sensor.example_accounted_ev_energy_today']?.state)), 'cost')], money: [metric('Kosten', euro(-Number(states['sensor.example_accounted_ev_cost_today']?.state)), 'cost')] },
+      ];
+    const renderMetrics = items => items.map(item => `<div class="metric-row ${item.tone}"><span class="metric-label">${esc(item.label)}</span><span class="metric-value">${esc(item.value)}</span></div>`).join('');
+    const componentCard = row =>   `<article class="component-card ${esc(row.tone)}">
+      <div class="component-card-title"><span class="component-dot"></span>${esc(row.label)}</div>
+      <div class="component-card-section">Energie</div>
+      ${renderMetrics(row.energy)}
+      <div class="component-card-section">Kosten / opbrengst</div>
+      ${renderMetrics(row.money)}
+    </article>`;
+
+    const componentGroups = [
+      { title: 'Netuitwisseling', subtitle: 'Totaal en de twee fysieke energietakken', rows: dayRows.slice(0, 3) },
+      { title: 'Opslag en opwek', subtitle: 'SAJ-batterij en zonnepanelen', rows: dayRows.slice(3, 4).concat(dayRows.slice(5, 6)) },
+      { title: 'Verbruik', subtitle: 'Woning en elektrisch laden', rows: dayRows.slice(4, 5).concat(dayRows.slice(6, 7)) }
+    ];
+
+    const dayTable = `<section class="component-overview" aria-label="Dagwaarden per energiecomponent">
+      <header class="component-overview-header">
+        <div>
+          <div class="component-overview-title">Energiecomponenten</div>
+          <div class="component-overview-subtitle">DAGWAARDEN PER LOGISCHE GROEP</div>
+        </div>
+        <span class="component-overview-badge">7 componenten</span>
+      </header>
+      <div class="component-groups">
+        ${componentGroups.map(group => `<section class="component-group">
+          <header class="component-group-header"><div class="component-group-title">${esc(group.title)}</div><div class="component-group-subtitle">${esc(group.subtitle)}</div></header>
+          <div class="component-card-grid">${group.rows.map(componentCard).join('')}</div>
+        </section>`).join('')}
+      </div>
+      <div class="component-overview-note">Totaal net is de uitwisseling met het openbare net. SAJ eManager en Zonneplan batterij meten bruto via het interne energieknooppunt; onderlinge stroom kan daardoor op beide takken voorkomen en valt netto weg op P1. Tel takwaarden daarom niet op bij Totaal net.</div>
+    </section>`;
+
+    const commonDefs = `
+      <defs>
+        <linearGradient id="carrier" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3b454a"/><stop offset=".55" stop-color="#20292d"/><stop offset="1" stop-color="#11171a"/></linearGradient>
+        <linearGradient id="controlCarrier" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#30266b"/><stop offset=".55" stop-color="#181447"/><stop offset="1" stop-color="#0f0d2d"/></linearGradient>
+        <linearGradient id="batteryLevel" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#19b792"/><stop offset="1" stop-color="#61e1c9"/></linearGradient>
+      </defs>`;
+
+    return `
+      <style>
+        .energy-schematic{position:relative;box-sizing:border-box;padding:20px 20px 14px;overflow:hidden;background:#fff;color:#18262b;font-family:var(--paper-font-body1_-_font-family,Inter,system-ui,sans-serif)}
+        .energy-schematic:before{content:"";position:absolute;inset:-20%;pointer-events:none;background:none;z-index:2;display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin:0 6px 10px}
+        .schematic-title{font-size:30px;font-weight:850;letter-spacing:-.03em;color:#18262b}.schematic-sub{margin-top:4px;font-size:12px;font-weight:750;letter-spacing:.13em;text-transform:uppercase;color:#596a70}
+        .schematic-legend{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.legend{padding:7px 11px;border-radius:999px;border:1px solid rgba(43,57,63,.18);background:rgba(255,255,255,.55);font-size:12px;font-weight:750;color:#394b51}.legend:before{content:"";display:inline-block;width:8px;height:8px;margin-right:7px;border-radius:50%}.legend.green:before{background:#0ff804;box-shadow:0 0 7px rgba(15,248,4,.55)}.legend.red:before{background:#ff032d;box-shadow:0 0 7px rgba(255,3,45,.4)}
+        .today-panel{position:relative;z-index:3;width:100%;box-sizing:border-box;margin-top:14px;padding:13px;border:1px solid rgba(43,57,63,.2);border-radius:18px;background:rgba(246,247,244,.94);box-shadow:0 10px 28px rgba(31,42,46,.14);backdrop-filter:blur(8px);color:#24343a}
+        .today-panel-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}.today-title{font-size:21px;font-weight:850;line-height:1.15}.today-subtitle{margin-top:4px;font-size:11px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:#68787d}.today-badge{padding:5px 10px;border-radius:999px;background:#e4ebea;border:1px solid rgba(43,57,63,.12);font-size:11px;font-weight:800;color:#53656a}
+        .today-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.today-card{position:relative;overflow:hidden;min-width:0;padding:11px 12px 10px;border:1px solid rgba(43,57,63,.13);border-radius:11px;background:#fff;box-shadow:0 3px 9px rgba(31,42,46,.07)}.today-card:before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:#52666c}.today-card.gain:before{background:#159431}.today-card.cost:before{background:#c2203b}.today-card.mixed:before{background:linear-gradient(#159431 0 50%,#c2203b 50% 100%)}.today-card.idle:before{background:#899396}.today-card-title{display:flex;align-items:center;gap:7px;padding-left:2px;font-size:14px;font-weight:850;line-height:1.25;color:#213238}.component-dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#52666c}.today-card.gain .component-dot{background:#159431}.today-card.cost .component-dot{background:#c2203b}.today-card.mixed .component-dot{background:linear-gradient(135deg,#159431 0 50%,#c2203b 50% 100%)}.today-card.idle .component-dot{background:#899396}.metric-group{margin-top:8px;padding-top:7px;border-top:1px solid #e1e6e5}.metric-group.finance{margin-top:7px}.metric-kicker{margin-bottom:4px;font-size:9.5px;font-weight:850;letter-spacing:.09em;text-transform:uppercase;color:#67777c}.metric-row{display:flex;align-items:baseline;justify-content:space-between;gap:7px;min-width:0;font-size:12px;line-height:1.45}.metric-label{flex:0 1 auto;color:#5c6d72}.metric-value{flex:0 1 auto;text-align:right;font-weight:800;color:#2d4147}.metric-row.gain .metric-value{color:#087b20}.metric-row.cost .metric-value{color:#b21732}.metric-row.idle .metric-value{color:#707d80;font-weight:700}.today-note{margin-top:10px;font-size:10.5px;line-height:1.45;color:#5d6d72}
+        .schematic-svg{position:relative;z-index:1;display:block;width:100%;height:auto;overflow:visible}.mobile-svg,.tablet-svg{display:none}
+        .wire-separator{fill:none;stroke:#d2d2cf;stroke-width:16;stroke-linecap:round;stroke-linejoin:round}.wire{fill:none;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .3s ease,opacity .3s ease}.wire.green{stroke:#087b20}.wire.red{stroke:#98152d}.wire.idle{stroke:#6a6465;opacity:.78}
+        .flow-ball{offset-distance:0%;offset-rotate:0deg;animation:travel var(--duration) linear infinite;filter:drop-shadow(0 0 5px currentColor)}.flow-ball.reverse{animation-direction:reverse}.flow-ball.green{fill:#0ff804;color:#0ff804}.flow-ball.red{fill:#ff032d;color:#ff032d}@keyframes travel{to{offset-distance:100%}}.flow-ball.smil-fallback{animation:none}
+
+        .carrier{fill:#1d292d;stroke:#39d9e8;stroke-width:3;filter:drop-shadow(0 8px 8px rgba(28,38,42,.24))}.carrier.control-unit{fill:#1b1549;stroke:#8d72ff;filter:drop-shadow(0 8px 10px rgba(55,36,123,.32))}
+        .tile-divider{stroke:rgba(88,224,237,.22);stroke-width:1.5}.control-divider{stroke:rgba(163,140,255,.32)}
+        .icon{fill:none;stroke:#58e0ed;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(56,218,233,.5))}.icon-thin{stroke-width:4}.control-icon{stroke:#a38cff;filter:drop-shadow(0 0 6px rgba(137,103,255,.68))}
+        .battery-shell{fill:none;stroke:#58e0ed;stroke-width:5}.battery-level{fill:#35d2b0}.ev-soc-shell{fill:rgba(12,22,26,.72);stroke:#58e0ed;stroke-width:3}.ev-soc-level{fill:#35d2b0}
+        .soc-inside{fill:#f8ffff;font-size:16px;font-weight:900;text-anchor:middle;paint-order:stroke;stroke:rgba(8,23,27,.72);stroke-width:3px}.soc-inside.small{font-size:11px;stroke-width:2px}
+        .meter-label{fill:#f6fbfc;font-size:15px;font-weight:850;text-anchor:middle;letter-spacing:.02em}
+        .tile-copy text{text-anchor:middle}.tile-title{font-size:16px;font-weight:850;fill:#f6fbfc;letter-spacing:.02em}.tile-status{font-size:17px;font-weight:800;fill:#d7e2e5}.tile-power{font-size:24px;font-weight:900;fill:#f8fbfc}.tile-detail{font-size:13px;font-weight:700;fill:#b8c9ce}.tile-copy.green .tile-status,.tile-copy.green .tile-power{fill:#52ff4a}.tile-copy.red .tile-status,.tile-copy.red .tile-power{fill:#ff526d}
+        .emanager-title{font-size:23px;font-weight:900;fill:#fff;text-anchor:middle}.emanager-sub{font-size:14px;font-weight:750;fill:#bfb2ff;text-anchor:middle}.emanager-source{font-size:16px;font-weight:750;fill:#d4d1ea}.emanager-value{text-anchor:end;font-size:16px;font-weight:850}.emanager-value.green{fill:#52ff4a}.emanager-value.red{fill:#ff526d}.emanager-value.idle{fill:#aaa6b9}
+        @media(max-width:900px){.energy-schematic{padding:16px 10px 12px}.schematic-title{font-size:25px}.schematic-legend{max-width:54%}.legend{font-size:11px}}
+        @media(max-width:1100px){.energy-schematic{padding:14px 8px 12px}.schematic-head{display:block;margin-bottom:10px}.schematic-title{font-size:25px}.schematic-sub{font-size:10px}.schematic-legend{display:none}.today-panel{width:100%;margin:10px 0 0;padding:11px}.today-panel-head{margin-bottom:10px}.today-title{font-size:18px}.today-subtitle{font-size:10px}.today-badge{font-size:10px}.today-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.today-card{padding:10px}.today-card-title{font-size:13px}.metric-kicker{font-size:9px}.metric-row{font-size:11px;line-height:1.45}.today-note{font-size:9.5px}.desktop-svg{display:none}.mobile-svg{display:block}.wire-separator{stroke-width:17}.wire{stroke-width:7}.tile-title{font-size:18px}.tile-status{font-size:19px}.tile-power{font-size:27px}.tile-detail{font-size:14px}.emanager-source,.emanager-value{font-size:16px}}
+
+        @media (min-width:700px) and (max-width:1100px) and (orientation:landscape) and (hover:none) and (pointer:coarse){.energy-schematic{padding:10px 8px 8px}.schematic-head{margin-bottom:6px}.schematic-title{font-size:23px}.schematic-sub{font-size:9px}.desktop-svg,.mobile-svg{display:none}.tablet-svg{display:block}}
+        @media(prefers-reduced-motion:reduce){.flow-ball{animation-duration:4.5s;opacity:.8}}
+
+  .component-overview{position:relative;z-index:3;box-sizing:border-box;width:100%;margin-top:14px;padding:20px;background:#eef4f8;border:1px solid rgba(255,255,255,.78);border-radius:26px;box-shadow:0 14px 32px rgba(2,8,23,.22);color:#18262b}
+  .component-overview-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:0 0 16px}
+  .component-overview-title{font-size:23px;font-weight:850;line-height:1.12;color:#203239}
+  .component-overview-subtitle,.component-group-subtitle,.component-card-section{font-size:10px;font-weight:850;letter-spacing:.11em;text-transform:uppercase}
+  .component-overview-subtitle{margin-top:5px;color:#60747d}
+  .component-overview-badge{white-space:nowrap;padding:6px 11px;border:1px solid #cbd9df;border-radius:999px;background:#e4edf1;color:#536a74;font-size:12px;font-weight:800}
+  .component-groups{display:grid;gap:15px}
+  .component-group{padding:14px;border:1px solid rgba(46,68,77,.14);border-radius:19px;background:rgba(255,255,255,.7)}
+  .component-group-header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px 10px}
+  .component-group-title{font-size:17px;font-weight:850;color:#203239}
+  .component-group-subtitle{color:#6c7f87;text-align:right}
+  .component-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  .component-card{position:relative;min-width:0;overflow:hidden;padding:15px 16px 13px;border-radius:18px;background:linear-gradient(145deg,#526c9f,#405986);box-shadow:0 8px 18px rgba(25,42,71,.18);color:#fff}
+  .component-card:before{content:'';position:absolute;inset:0 auto 0 0;width:5px;background:#899396}
+  .component-card.gain:before{background:#19a431}.component-card.cost:before{background:#e22b3b}.component-card.mixed:before{background:linear-gradient(#19a431 0 50%,#e22b3b 50% 100%)}
+  .component-card-title{display:flex;align-items:center;gap:7px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.22);font-size:16px;font-weight:850;line-height:1.2}
+  .component-card .component-dot{flex:0 0 auto;width:8px;height:8px;border-radius:50%;background:#aeb9bf}.component-card.gain .component-dot{background:#19e154}.component-card.cost .component-dot{background:#ff6a7a}.component-card.mixed .component-dot{background:linear-gradient(135deg,#19e154 0 50%,#ff6a7a 50% 100%)}
+  .component-card-section{margin-top:11px;color:#c9d8e2}
+  .component-card .metric-group{margin-top:5px;padding-top:0;border-top:0}.component-card .metric-kicker{display:none}.component-card .metric-row{font-size:14px;color:#e4edf4}.component-card .metric-value{font-size:14px;color:#fff}.component-card .metric-row.gain .metric-value{color:#54ee78}.component-card .metric-row.cost .metric-value{color:#ff8793}.component-card .metric-row.idle .metric-value{color:#d7e0e7}
+  .component-overview-note{margin-top:13px;font-size:12px;line-height:1.45;color:#61757e}
+  @media (max-width:900px){.component-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.component-group-header{align-items:flex-start;flex-direction:column;gap:2px}.component-group-subtitle{text-align:left}}
+  @media (max-width:560px){.component-overview{margin-top:10px;padding:14px;border-radius:20px}.component-overview-header{margin-bottom:12px}.component-overview-title{font-size:20px}.component-overview-badge{font-size:11px;padding:5px 8px}.component-group{padding:11px;border-radius:15px}.component-card-grid{grid-template-columns:1fr;gap:9px}.component-card{padding:13px 14px}.component-card-title{font-size:15px}.component-overview-note{font-size:11px}}
+  </style>
+      <div class="energy-schematic">
+        <div class="schematic-head">
+          <div><div class="schematic-title">Live energietopologie</div><div class="schematic-sub">Energie TMP · leesbare live waarden</div></div>
+          <div class="schematic-legend"><span class="legend green">bron / ontladen / export</span><span class="legend red">import / laden / verbruik</span></div>
+        </div>
+        <svg class="schematic-svg desktop-svg" viewBox="0 0 1200 1300" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Live energietopologie voor desktop en tablet">
+          ${commonDefs}
+          <g aria-label="Live energiestromen">
+  ${flow('M440 230 V295', p1, p1Active, p1Family, p1Forward)}
+
+  ${flow('M447 470 V744',netEmanagerPower,netEmanagerActive,netEmanagerFamily,netEmanagerForward)}
+
+  ${flow('M535 350 H805', zonneplanSmartPower, zonneplanSmartActive, zonneplanSmartFamily, zonneplanSmartForward)}
+
+  ${flow('M785 430 H680 Q650 430 650 460 V744', zonneplanEmanagerPower, zonneplanEmanagerActive, zonneplanEmanagerFamily, zonneplanEmanagerForward)}
+  ${flow('M180 735 V785 Q180 815 210 815 H343', home, homeActive, 'red', false)}
+  ${flow('M895 735 V785 Q895 815 865 815 H733', ev, evActive, 'red', false)}
+  ${flow('M180 1008 V970 Q180 940 210 940 H343', sajBattery, sajBatteryActive, sajBatteryFamily, !sajBatteryCharging)}
+  ${flow('M895 1008 V970 Q895 940 865 940 H733', pv, pvActive, 'green', true)}
+          </g>
+
+          <g aria-label="Net" transform="translate(305 10)">
+            <rect class="carrier" x="40" y="20" width="190" height="200" rx="28"/><line class="tile-divider" x1="55" y1="126" x2="215" y2="126"/>
+            <g class="icon" transform="translate(94 38)"><path d="M42 0 7 78M42 0l35 78M21 31h42M13 53h58M3 78h78M27 15h30M19 53l46 25M65 53 19 78"/></g>
+            ${tileCopy(40, 20, 190, 'NET', p1Mode, watts(p1), '', p1Active ? p1Family : 'idle')}
+          </g>
+
+          <g aria-label="Slimme meter contractgrens" transform="translate(258 -83) scale(1.4)">
+            <rect class="carrier" x="55" y="270" width="160" height="125" rx="22"/>
+            <g class="icon icon-thin"><rect x="82" y="280" width="106" height="78" rx="8"/><path d="M94 302h13m9 0h13m9 0h13m9 0h13M94 340h20m17 0h42"/><circle cx="104" cy="322" r="7"/><circle cx="111" cy="352" r="3"/><circle cx="135" cy="352" r="3"/><circle cx="159" cy="352" r="3"/></g>
+            <text x="135" y="383" class="meter-label">SLIMME METER</text>
+          </g>
+
+          <g aria-label="Zonneplan batterij" transform="translate(-145 25)">
+            <rect class="carrier" x="930" y="255" width="235" height="220" rx="28"/><line class="tile-divider" x1="945" y1="364" x2="1150" y2="364"/>
+            <g><rect class="battery-shell" x="965" y="284" width="155" height="63" rx="10"/><rect class="battery-shell" x="1120" y="303" width="12" height="25" rx="3"/><rect class="battery-level" x="974" y="293" width="${Math.max(4, 137 * nexusSoc / 100)}" height="45" rx="6"/><text x="1042" y="325" class="soc-inside">${Math.round(nexusSoc)}%</text></g>
+          ${tileCopy(930, 255, 235, 'ZONNEPLAN 20 kWh', nexusMode, watts(nexus), '', nexusActive ? nexusFamily : 'idle')}
+          </g>
+
+          <g aria-label="SAJ HS3 eManager regelunit" transform="translate(-62 319)">
+            <rect class="carrier control-unit" x="405" y="425" width="390" height="250" rx="30"/><line class="control-divider" x1="425" y1="505" x2="775" y2="505"/>
+            <g class="icon control-icon icon-thin"><rect x="430" y="447" width="86" height="49" rx="6"/><path d="M440 511h66"/><circle cx="452" cy="521" r="3"/><circle cx="473" cy="521" r="3"/><circle cx="494" cy="521" r="3"/></g>
+            <text x="650" y="456" class="emanager-title">SAJ HS3 eMANAGER</text><text x="650" y="482" class="emanager-sub">CENTRALE REGELUNIT</text>
+            ${emanagerFlows.map(([source, value], index) => `<text x="435" y="${548 + index * 31}" class="emanager-source">${esc(source)}</text><text x="765" y="${548 + index * 31}" class="emanager-value ${value.family}">${esc(value.text)}</text>`).join('')}
+          </g>
+
+          <g aria-label="SAJ batterij" transform="translate(5 288)">
+            <rect class="carrier" x="70" y="720" width="210" height="205" rx="28"/><line class="tile-divider" x1="85" y1="825" x2="265" y2="825"/>
+            <g><rect class="battery-shell" x="145" y="741" width="60" height="78" rx="7"/><rect class="battery-shell" x="162" y="733" width="26" height="9" rx="3"/><rect class="battery-level" x="153" y="${811 - (62 * sajSoc / 100)}" width="44" height="${Math.max(3, 62 * sajSoc / 100)}" rx="4"/><text x="175" y="787" class="soc-inside">${Math.round(sajSoc)}%</text></g>
+          ${tileCopy(70, 720, 210, 'SAJ 10 kWh', sajBatteryMode, watts(sajBattery), '', sajBatteryActive ? sajBatteryFamily : 'idle')}
+          </g>
+
+          <g aria-label="Thuisverbruik" transform="translate(-265 -190)">
+            <rect class="carrier" x="335" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="350" y1="825" x2="540" y2="825"/>
+            <g class="icon icon-thin"><path d="M390 782 445 741l55 41M403 775v43h84v-43M420 799h13l9-18 11 34 9-18h15"/></g>
+          ${tileCopy(335, 720, 220, 'THUISVERBRUIK', homeStatus, homeValue, '', homeActive ? 'red' : 'idle')}
+          </g>
+
+          <g aria-label="Zonnepanelen" transform="translate(145 288)">
+            <rect class="carrier" x="645" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="660" y1="825" x2="850" y2="825"/>
+            <g class="icon icon-thin"><path d="M695 745h120l-14 62H681l14-62Z M711 745l-9 62m37-62-9 62m37-62-9 62m-69-31h120M737 807v13m-28 0h56"/></g>
+            ${tileCopy(645, 720, 220, 'ZONNEPANELEN', pvActive ? 'Productie' : 'Rust', watts(pv), '', pvActive ? 'green' : 'idle')}
+          </g>
+
+          <g aria-label="EV-lader" transform="translate(-120 -190)">
+            <rect class="carrier" x="905" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="920" y1="825" x2="1110" y2="825"/>
+          <g class="icon icon-thin"><rect class="ev-soc-shell" x="935" y="737" width="112" height="29" rx="7"/><rect class="ev-soc-level" x="941" y="743" width="${evSocKnown ? Math.max(4, 100 * evSoc / 100) : 0}" height="17" rx="4"/><text x="991" y="758" class="soc-inside small">${evSocKnown ? `${Math.round(evSoc)}%` : '—'}</text><path d="M950 798c4-19 16-30 33-30h31c18 0 30 11 34 30v20h-11v-9h-75v9h-11v-20Z"/><circle cx="971" cy="798" r="6"/><circle cx="1029" cy="798" r="6"/><rect x="1055" y="744" width="25" height="39" rx="5"/><path d="M1068 783v16c0 11-8 16-18 16"/></g>
+          ${tileCopy(905, 720, 220, 'EV-LADER', evActive ? 'Laden' : 'Rust', watts(ev), '', evActive ? 'red' : 'idle')}
+          </g>
+
+    ${flowPowerLabel(447,610,netEmanagerPower,netEmanagerActive,netEmanagerFamily)}${flowPowerLabel(687.5,350,zonneplanSmartPower,zonneplanSmartActive,zonneplanSmartFamily)}${flowPowerLabel(650,590,zonneplanEmanagerPower,zonneplanEmanagerActive,zonneplanEmanagerFamily)}</svg>
+
+        <svg class="schematic-svg tablet-svg" viewBox="0 0 1200 1300" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Live energietopologie voor iPad en tablet — proportionele desktopspiegel">
+          ${commonDefs}
+          <g aria-label="Live energiestromen">
+  ${flow('M440 230 V295', p1, p1Active, p1Family, p1Forward)}
+
+  ${flow('M447 470 V744',netEmanagerPower,netEmanagerActive,netEmanagerFamily,netEmanagerForward)}
+
+  ${flow('M535 350 H805', zonneplanSmartPower, zonneplanSmartActive, zonneplanSmartFamily, zonneplanSmartForward)}
+
+  ${flow('M785 430 H680 Q650 430 650 460 V744', zonneplanEmanagerPower, zonneplanEmanagerActive, zonneplanEmanagerFamily, zonneplanEmanagerForward)}
+  ${flow('M180 735 V785 Q180 815 210 815 H343', home, homeActive, 'red', false)}
+  ${flow('M895 735 V785 Q895 815 865 815 H733', ev, evActive, 'red', false)}
+  ${flow('M180 1008 V970 Q180 940 210 940 H343', sajBattery, sajBatteryActive, sajBatteryFamily, !sajBatteryCharging)}
+  ${flow('M895 1008 V970 Q895 940 865 940 H733', pv, pvActive, 'green', true)}
+          </g>
+
+          <g aria-label="Net" transform="translate(305 10)">
+            <rect class="carrier" x="40" y="20" width="190" height="200" rx="28"/><line class="tile-divider" x1="55" y1="126" x2="215" y2="126"/>
+            <g class="icon" transform="translate(94 38)"><path d="M42 0 7 78M42 0l35 78M21 31h42M13 53h58M3 78h78M27 15h30M19 53l46 25M65 53 19 78"/></g>
+            ${tileCopy(40, 20, 190, 'NET', p1Mode, watts(p1), '', p1Active ? p1Family : 'idle')}
+          </g>
+
+          <g aria-label="Slimme meter contractgrens" transform="translate(258 -83) scale(1.4)">
+            <rect class="carrier" x="55" y="270" width="160" height="125" rx="22"/>
+            <g class="icon icon-thin"><rect x="82" y="280" width="106" height="78" rx="8"/><path d="M94 302h13m9 0h13m9 0h13m9 0h13M94 340h20m17 0h42"/><circle cx="104" cy="322" r="7"/><circle cx="111" cy="352" r="3"/><circle cx="135" cy="352" r="3"/><circle cx="159" cy="352" r="3"/></g>
+            <text x="135" y="383" class="meter-label">SLIMME METER</text>
+          </g>
+
+          <g aria-label="Zonneplan batterij" transform="translate(-145 25)">
+            <rect class="carrier" x="930" y="255" width="235" height="220" rx="28"/><line class="tile-divider" x1="945" y1="364" x2="1150" y2="364"/>
+            <g><rect class="battery-shell" x="965" y="284" width="155" height="63" rx="10"/><rect class="battery-shell" x="1120" y="303" width="12" height="25" rx="3"/><rect class="battery-level" x="974" y="293" width="${Math.max(4, 137 * nexusSoc / 100)}" height="45" rx="6"/><text x="1042" y="325" class="soc-inside">${Math.round(nexusSoc)}%</text></g>
+          ${tileCopy(930, 255, 235, 'ZONNEPLAN 20 kWh', nexusMode, watts(nexus), '', nexusActive ? nexusFamily : 'idle')}
+          </g>
+
+          <g aria-label="SAJ HS3 eManager regelunit" transform="translate(-62 319)">
+            <rect class="carrier control-unit" x="405" y="425" width="390" height="250" rx="30"/><line class="control-divider" x1="425" y1="505" x2="775" y2="505"/>
+            <g class="icon control-icon icon-thin"><rect x="430" y="447" width="86" height="49" rx="6"/><path d="M440 511h66"/><circle cx="452" cy="521" r="3"/><circle cx="473" cy="521" r="3"/><circle cx="494" cy="521" r="3"/></g>
+            <text x="650" y="456" class="emanager-title">SAJ HS3 eMANAGER</text><text x="650" y="482" class="emanager-sub">CENTRALE REGELUNIT</text>
+            ${emanagerFlows.map(([source, value], index) => `<text x="435" y="${548 + index * 31}" class="emanager-source">${esc(source)}</text><text x="765" y="${548 + index * 31}" class="emanager-value ${value.family}">${esc(value.text)}</text>`).join('')}
+          </g>
+
+          <g aria-label="SAJ batterij" transform="translate(5 288)">
+            <rect class="carrier" x="70" y="720" width="210" height="205" rx="28"/><line class="tile-divider" x1="85" y1="825" x2="265" y2="825"/>
+            <g><rect class="battery-shell" x="145" y="741" width="60" height="78" rx="7"/><rect class="battery-shell" x="162" y="733" width="26" height="9" rx="3"/><rect class="battery-level" x="153" y="${811 - (62 * sajSoc / 100)}" width="44" height="${Math.max(3, 62 * sajSoc / 100)}" rx="4"/><text x="175" y="787" class="soc-inside">${Math.round(sajSoc)}%</text></g>
+          ${tileCopy(70, 720, 210, 'SAJ 10 kWh', sajBatteryMode, watts(sajBattery), '', sajBatteryActive ? sajBatteryFamily : 'idle')}
+          </g>
+
+          <g aria-label="Thuisverbruik" transform="translate(-265 -190)">
+            <rect class="carrier" x="335" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="350" y1="825" x2="540" y2="825"/>
+            <g class="icon icon-thin"><path d="M390 782 445 741l55 41M403 775v43h84v-43M420 799h13l9-18 11 34 9-18h15"/></g>
+          ${tileCopy(335, 720, 220, 'THUISVERBRUIK', homeStatus, homeValue, '', homeActive ? 'red' : 'idle')}
+          </g>
+
+          <g aria-label="Zonnepanelen" transform="translate(145 288)">
+            <rect class="carrier" x="645" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="660" y1="825" x2="850" y2="825"/>
+            <g class="icon icon-thin"><path d="M695 745h120l-14 62H681l14-62Z M711 745l-9 62m37-62-9 62m37-62-9 62m-69-31h120M737 807v13m-28 0h56"/></g>
+            ${tileCopy(645, 720, 220, 'ZONNEPANELEN', pvActive ? 'Productie' : 'Rust', watts(pv), '', pvActive ? 'green' : 'idle')}
+          </g>
+
+          <g aria-label="EV-lader" transform="translate(-120 -190)">
+            <rect class="carrier" x="905" y="720" width="220" height="205" rx="28"/><line class="tile-divider" x1="920" y1="825" x2="1110" y2="825"/>
+          <g class="icon icon-thin"><rect class="ev-soc-shell" x="935" y="737" width="112" height="29" rx="7"/><rect class="ev-soc-level" x="941" y="743" width="${evSocKnown ? Math.max(4, 100 * evSoc / 100) : 0}" height="17" rx="4"/><text x="991" y="758" class="soc-inside small">${evSocKnown ? `${Math.round(evSoc)}%` : '—'}</text><path d="M950 798c4-19 16-30 33-30h31c18 0 30 11 34 30v20h-11v-9h-75v9h-11v-20Z"/><circle cx="971" cy="798" r="6"/><circle cx="1029" cy="798" r="6"/><rect x="1055" y="744" width="25" height="39" rx="5"/><path d="M1068 783v16c0 11-8 16-18 16"/></g>
+          ${tileCopy(905, 720, 220, 'EV-LADER', evActive ? 'Laden' : 'Rust', watts(ev), '', evActive ? 'red' : 'idle')}
+          </g>
+
+    ${flowPowerLabel(447,610,netEmanagerPower,netEmanagerActive,netEmanagerFamily)}${flowPowerLabel(687.5,350,zonneplanSmartPower,zonneplanSmartActive,zonneplanSmartFamily)}${flowPowerLabel(650,590,zonneplanEmanagerPower,zonneplanEmanagerActive,zonneplanEmanagerFamily)}</svg>
+
+        <svg class="schematic-svg mobile-svg" viewBox="0 0 520 1450" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Live energietopologie voor telefoon">
+  <defs><linearGradient id="mobileBatteryLevel" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#19b792"/><stop offset="1" stop-color="#61e1c9"/></linearGradient></defs>
+  <!-- Mobiele paden: vaste ankerpunten, achter alle componentkaarten. -->
+  ${flow('M260 230 V255 Q260 280 235 280 H125 Q100 280 100 300', p1, p1Active, p1Family, p1Forward)}
+  ${flow('M100 510 V535 Q100 560 125 560 H220 Q245 560 245 585 V940', netEmanagerPower, netEmanagerActive, netEmanagerFamily, netEmanagerForward)}
+  ${flow('M200 405 H320', zonneplanSmartPower, zonneplanSmartActive, zonneplanSmartFamily, zonneplanSmartForward)}
+  ${flow('M275 940 V585 Q275 560 300 560 H395 Q420 560 420 535 V520', zonneplanEmanagerPower, zonneplanEmanagerActive, zonneplanEmanagerFamily, !zonneplanEmanagerForward)}
+
+  ${flow('M60 860 V990 Q60 1020 90 1020 H110', home, homeActive, 'red', false)}
+  ${flow('M460 860 V990 Q460 1020 430 1020 H410', ev, evActive, 'red', false)}
+  ${flow('M60 1210 V1110 Q60 1080 90 1080 H110', sajBattery, sajBatteryActive, sajBatteryFamily, !sajBatteryCharging)}
+  ${flow('M460 1210 V1110 Q460 1080 430 1080 H410', pv, pvActive, 'green', true)}
+
+  <g aria-label="Net mobiel">
+    <rect class="carrier" x="160" y="20" width="200" height="210" rx="28"/>
+    <line class="tile-divider" x1="175" y1="126" x2="345" y2="126"/>
+    <g class="icon icon-thin"><path d="M260 42 222 113h76L260 42Zm0 0v71M243 72h34M234 91h52M229 113l31-22 31 22"/></g>
+    ${mobileTileCopy(160,20,200,'NET',p1Mode,watts(p1),'',p1Active?p1Family:'idle')}
+  </g>
+
+  <g aria-label="Slimme meter mobiel">
+    <rect class="carrier" x="0" y="300" width="200" height="210" rx="28"/>
+    <line class="tile-divider" x1="15" y1="405" x2="185" y2="405"/>
+    <g class="icon icon-thin">
+      <rect x="28" y="320" width="160" height="96" rx="10"/>
+      <path d="M44 340h25m12 0h25m12 0h25m12 0h16M52 364a9 9 0 1 0 0 .1M43 389h25m25 0h62M55 406h1m35 0h1m35 0h1"/>
+    </g>
+    <text x="100" y="481" class="tile-title" text-anchor="middle">SLIMME METER</text>
+  </g>
+
+  <g aria-label="Zonneplan batterij mobiel">
+    <rect class="carrier" x="320" y="300" width="200" height="220" rx="28"/>
+    <line class="tile-divider" x1="335" y1="405" x2="505" y2="405"/>
+    <g>
+      <rect class="nexus-shell" x="339" y="326" width="148" height="61" rx="8"/>
+      <rect class="nexus-shell" x="487" y="341" width="15" height="31" rx="4"/>
+      <rect class="nexus-level" style="fill:url(#mobileBatteryLevel)" x="348" y="335" width="${Math.max(4,130*nexusSoc/100)}" height="43" rx="5"/>
+      <text x="413" y="365" class="soc-inside">${Math.round(nexusSoc)}%</text>
+    </g>
+    ${mobileTileCopy(320,300,200,'ZONNEPLAN 20 kWh',nexusMode,watts(nexus),'',nexusActive?nexusFamily:'idle')}
+  </g>
+
+  <g aria-label="Thuisverbruik mobiel">
+    <rect class="carrier" x="5" y="650" width="225" height="210" rx="28"/>
+    <line class="tile-divider" x1="20" y1="755" x2="215" y2="755"/>
+    <g class="icon icon-thin"><path d="M63 712 118 671l55 41M76 705v43h84v-43M93 729h13l9-18 11 34 9-18h15"/></g>
+    ${mobileTileCopy(5,650,225,'THUISVERBRUIK',homeActive?'Verbruik':'Rust',watts(home),'',homeActive?'red':'idle')}
+  </g>
+
+  <g aria-label="EV-lader mobiel">
+    <rect class="carrier" x="290" y="650" width="225" height="210" rx="28"/>
+    <line class="tile-divider" x1="305" y1="755" x2="500" y2="755"/>
+    <g class="icon icon-thin">
+      <rect class="ev-soc-shell" x="316" y="666" width="114" height="29" rx="7"/>
+      <rect class="ev-soc-level" x="322" y="672" width="${evSocKnown?Math.max(4,102*evSoc/100):0}" height="17" rx="4"/>
+      <text x="373" y="687" class="soc-inside small">${evSocKnown?`${Math.round(evSoc)}%`:'—'}</text>
+      <path d="M331 728c4-19 16-30 33-30h31c18 0 30 11 34 30v20h-11v-9h-75v9h-11v-20Z"/>
+      <circle cx="352" cy="728" r="6"/><circle cx="410" cy="728" r="6"/><rect x="437" y="674" width="25" height="39" rx="5"/>
+    </g>
+    ${mobileTileCopy(290,650,225,'EV-LADER',evActive?'Laden':'Rust',watts(ev),'',evActive?'red':'idle')}
+  </g>
+
+  <g aria-label="eManager mobiel">
+    <rect class="carrier control-unit" x="110" y="940" width="300" height="220" rx="28"/>
+    <line class="control-divider" x1="125" y1="1008" x2="395" y2="1008"/>
+    <g class="icon control-icon icon-thin"><rect x="130" y="958" width="70" height="40" rx="5"/><path d="M140 1006h50"/></g>
+    <text x="300" y="967" class="emanager-title">SAJ HS3</text><text x="300" y="990" class="emanager-title">eMANAGER</text>
+    ${emanagerFlows.map(([source,value],index)=>`<text x="132" y="1038" dy="${index*32}" class="emanager-source">${esc(source)}</text><text x="388" y="1038" dy="${index*32}" class="emanager-value ${value.family}">${esc(value.text)}</text>`).join('')}
+  </g>
+
+  <g aria-label="SAJ batterij mobiel">
+    <rect class="carrier" x="5" y="1210" width="225" height="220" rx="28"/>
+    <line class="tile-divider" x1="20" y1="1319" x2="215" y2="1319"/>
+    <g><rect class="battery-shell" x="88" y="1231" width="60" height="78" rx="7"/><rect class="battery-shell" x="105" y="1223" width="26" height="9" rx="3"/><rect class="battery-level" x="96" y="${1301-(62*sajSoc/100)}" width="44" height="${Math.max(3,62*sajSoc/100)}" rx="4"/><text x="118" y="1277" class="soc-inside">${Math.round(sajSoc)}%</text></g>
+    ${mobileTileCopy(5,1210,225,'SAJ 10 kWh',sajBatteryMode,watts(sajBattery),'',sajBatteryActive?sajBatteryFamily:'idle')}
+  </g>
+
+  <g aria-label="Zonnepanelen mobiel">
+    <rect class="carrier" x="290" y="1210" width="225" height="220" rx="28"/>
+    <line class="tile-divider" x1="305" y1="1319" x2="500" y2="1319"/>
+    <g class="icon icon-thin"><path d="M340 1235h120l-14 62H326l14-62Z M356 1235l-9 62m37-62-9 62m37-62-9 62m-69-31h120M382 1297v13m-28 0h56"/></g>
+    ${mobileTileCopy(290,1210,225,'ZONNEPANELEN',pvActive?'Productie':'Rust',watts(pv),'',pvActive?'green':'idle')}
+  </g>
+
+  <!-- Dezelfde drie desktop-vermogenslabels, boven op hun eigen mobiele verbinding. -->
+  ${flowPowerLabel(260,405,zonneplanSmartPower,zonneplanSmartActive,zonneplanSmartFamily)}
+  ${flowPowerLabel(185,560,netEmanagerPower,netEmanagerActive,netEmanagerFamily)}
+  ${flowPowerLabel(352,560,zonneplanEmanagerPower,zonneplanEmanagerActive,zonneplanEmanagerFamily)}
+  </svg>
+
+      </div>`;
+  ]]]
